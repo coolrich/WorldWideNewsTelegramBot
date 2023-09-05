@@ -3,15 +3,12 @@
 import pprint
 import telebot
 from telebot import types
-import markdown2
-# from faker import Faker
 import news_scraper
 from collections import deque
-import html
-from telegram.helpers import escape_markdown
+from telebot.formatting import escape_markdown
 
 markup = None
-bot = telebot.TeleBot("6513546283:AAGehuVYsklhpdNNbOGQMU1jwmjg6zVzU-Y")
+bot = telebot.TeleBot(token="6513546283:AAGehuVYsklhpdNNbOGQMU1jwmjg6zVzU-Y")
 bot_username = "@EarthNewsEpicBot"
 
 
@@ -31,14 +28,20 @@ def echo_all(message):
 
 def news_handler(message):
     print("In news handler.")
-
-    title = news_deque.popleft()
-    text = news_dict[title]
-    post = '## ' + title + '\n' + text
-    post = escape_markdown(post, version=2)
-    notification = f"Новини про \n {post}!"
+    title = news_deque.popleft() if news_deque else None
+    if title is None:
+        bot.send_message(chat_id=message.chat.id, text='There are no news!', parse_mode="MarkdownV2")
+        return
+    text = news_dict[title][0]
+    url = news_dict[title][1]
+    txt_len = len(text)
+    notification = f"{'-' * txt_len}\nНовини про: \ntitle:{title}\ntext:{text}\nurl:{url}!\n{'-' * txt_len}"
     print(notification)
-    bot.send_message(message.chat.id, post, reply_markup=markup, parse_mode='MarkdownV2')
+    title = f'*{escape_markdown(title)}*'
+    text = escape_markdown(text)
+    url = f'[Link to the article]({url})'
+    post = f'{title}\n\n{text}\n\n{url}'
+    bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
 
 
 def logging(message):
@@ -49,5 +52,4 @@ def logging(message):
 if __name__ == '__main__':
     news_dict = news_scraper.get_news()
     news_deque = deque(news_dict)
-    # fake_gen = Faker()
     bot.polling()
