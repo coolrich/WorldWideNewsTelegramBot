@@ -22,6 +22,14 @@ def get_html_source(url):
 
 
 def parse_page(base_url, html_source):
+    match base_url:
+        case "https://www.bbc.com/news":
+            return bbc(base_url, html_source)
+        case "https://www.bbc.com/ukrainian":
+            return bbc_ukraine(base_url, html_source)
+
+
+def bbc(base_url, html_source):
     base_url = base_url.split('.com')[0] + '.com'
     bs = BeautifulSoup(html_source, 'html5lib')
     posts = bs.find_all('div', {'class': 'gs-c-promo-body'})
@@ -39,6 +47,11 @@ def parse_page(base_url, html_source):
         posts_dict[heading] = [text, full_url]
         # print(posts_dict)
     return posts_dict
+
+
+def bbc_ukraine(base_url, html_source):
+    base_url = base_url.split('.com')[0] + '.com'
+    bs = BeautifulSoup(html_source, 'html5lib')
 
 
 def get_news():
