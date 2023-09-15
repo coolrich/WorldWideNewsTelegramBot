@@ -14,10 +14,11 @@ class BotManager:
         self.ua_news_dict = None
         self.world_news_deque = None
         self.ua_news_deque = None
+        self.news_manager = NewsManager()
 
     def start(self):
-        self.world_news_dict = NewsManager.get_world_news()
-        self.ua_news_dict = NewsManager.get_ua_news()
+        self.world_news_dict = self.news_manager.get_world_news()
+        self.ua_news_dict = self.news_manager.get_ua_news()
         self.world_news_deque = deque(self.world_news_dict)
         self.ua_news_deque = deque(self.ua_news_dict)
 
@@ -28,36 +29,35 @@ class BotManager:
             self.markup.add(types.KeyboardButton('Новини України'))
             self.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини", reply_markup=self.markup)
 
-        @self.bot.message_handler(func=lambda message: message.text == 'Новини України')
-        def ua_news_handler(message):
-            title = self.ua_news_deque.popleft() if self.ua_news_deque else None
-            if title is None:
-                self.bot.send_message(chat_id=message.chat.id, text='Більше новин немає\!', parse_mode="MarkdownV2")
-                return
-            text = self.ua_news_dict[title][0]
-            url = self.ua_news_dict[title][1]
+        def get_news_info(news_dict, news_deque, title):
+            article_info = news_dict[title]
+            text = article_info[0]
+            url = article_info[1]
             txt_len = len(text)
             notification = f"{'-' * txt_len}\nНовини про:\nЗаголовок: {title}\nТекст: {text}\nUrl: {url}!\n{'-' * txt_len}"
             title = f'*{escape_markdown(title)}*'
             text = escape_markdown(text)
             url = f'[Посилання на статтю]({url})'
             post = f'{title}\n\n{text}\n\n{url}'
+            news_deque.popleft()
+            return post
+
+        @self.bot.message_handler(func=lambda message: message.text == 'Новини України')
+        def ua_news_handler(message):
+            title = self.ua_news_deque[0] if self.ua_news_deque else None
+            if title is None:
+                self.bot.send_message(chat_id=message.chat.id, text='Більше новин немає\!', parse_mode="MarkdownV2")
+                return
+            post = get_news_info(self.ua_news_dict, self.ua_news_deque, title)
             self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
 
         @self.bot.message_handler(func=lambda message: message.text == 'Новини Світу')
         def world_news_handler(message):
-            title = self.world_news_deque.popleft() if self.world_news_deque else None
+            title = self.world_news_deque[0] if self.world_news_deque else None
             if title is None:
                 self.bot.send_message(chat_id=message.chat.id, text='Більше новин немає\!', parse_mode="MarkdownV2")
                 return
-            text = self.world_news_dict[title][0]
-            url = self.world_news_dict[title][1]
-            txt_len = len(text)
-            notification = f"{'-' * txt_len}\nНовини про: \nЗаголовок: {title}\nТекст: {text}\nUrl: {url}!\n{'-' * txt_len}"
-            title = f'*{escape_markdown(title)}*'
-            text = escape_markdown(text)
-            url = f'[Посилання на статтю]({url})'
-            post = f'{title}\n\n{text}\n\n{url}'
+            post = get_news_info(self.world_news_dict, self.world_news_deque, title)
             self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
 
         @self.bot.message_handler(func=lambda message: True)
@@ -69,15 +69,14 @@ class BotManager:
 
 
 class NewsManager:
-    @staticmethod
-    def get_world_news():
-        scraper = NewsScraper()
-        return scraper.get_world_news()
+    def __init__(self):
+        self.scraper = NewsScraper()
 
-    @staticmethod
-    def get_ua_news():
-        scraper = NewsScraper()
-        return scraper.get_ua_news()
+    def get_world_news(self):
+        return self.scraper.get_world_news()
+
+    def get_ua_news(self):
+        return self.scraper.get_ua_news()
 
 
 class ErrorHandler:
