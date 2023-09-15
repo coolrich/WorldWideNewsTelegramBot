@@ -77,12 +77,14 @@ class NewsScraper:
         return posts_dict
 
     def get_ua_news(self):
-        bbc_page = self.get_bbc_news_ukraine_source_from_folder()
+        # bbc_page = self.get_bbc_news_ukraine_source_from_folder()
+        bbc_page = self.get_html_source(self.ua_url)
         news_dict = self.parse_bbc_ukraine(self.ua_url, bbc_page)
         return news_dict
 
     def get_world_news(self):
-        bbc_page = self.get_bbc_news_source_from_folder()
+        # bbc_page = self.get_bbc_news_source_from_folder()
+        bbc_page = self.get_html_source(self.world_url)
         news_dict = self.parse_bbc(self.world_url, bbc_page)
         return news_dict
 
