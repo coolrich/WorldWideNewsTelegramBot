@@ -5,64 +5,89 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 
-def get_html_source_from_folder():
-    with open("bbc_news.html", "r") as f:
-        html_str = f.read()
-    page_source = html_str
-    return page_source
+class NewsScraper:
+    def __init__(self, ua_url=r"https://www.bbc.com/ukrainian", world_url=r"https://www.bbc.com/news"):
+        self.ua_url = ua_url
+        self.world_url = world_url
 
+    @staticmethod
+    def get_bbc_news_source_from_folder():
+        with open("bbc_news.html", "r") as f:
+            html_str = f.read()
+        page_source = html_str
+        return page_source
 
-def get_html_source(url):
-    time.sleep(3)
-    driver = webdriver.Chrome()
-    driver.get(url)
-    page_source = driver.execute_script('return document.documentElement.outerHTML')
-    driver.quit()
-    return page_source
+    @staticmethod
+    def get_bbc_news_ukraine_source_from_folder():
+        with open("bbc_news_ukraine.html", "r") as f:
+            html_str = f.read()
+        page_source = html_str
+        return page_source
 
+    @staticmethod
+    def get_html_source(url):
+        time.sleep(3)
+        driver = webdriver.Chrome()
+        driver.get(url)
+        page_source = driver.execute_script('return document.documentElement.outerHTML')
+        driver.quit()
+        return page_source
 
-def parse_page(base_url, html_source):
-    match base_url:
-        case "https://www.bbc.com/news":
-            return bbc(base_url, html_source)
-        case "https://www.bbc.com/ukrainian":
-            return bbc_ukraine(base_url, html_source)
+    @staticmethod
+    def parse_bbc(base_url, html_source):
+        base_url = base_url.split('.com')[0] + '.com'
+        bs = BeautifulSoup(html_source, 'html5lib')
+        posts = bs.find_all('div', {'class': 'gs-c-promo-body'})
+        posts_dict = {}
+        for post in posts:
+            heading = post.find('a').find('h3').text
+            p_tag = post.find('p')
+            if p_tag:
+                text = p_tag.get_text()
+            else:
+                continue
+            rel_link = post.find('a')['href']
+            full_url = urljoin(base_url.rstrip('/') + '/', rel_link.lstrip('/'))
+            posts_dict[heading] = [text, full_url]
+        return posts_dict
 
+    @staticmethod
+    def parse_bbc_ukraine(base_url, html_source):
+        base_url = base_url.split('.com')[0] + '.com'
+        bs = BeautifulSoup(html_source, 'html5lib')
+        section_tags = bs.find('main').find_all('section')
+        posts_dict = {}
+        for section in section_tags:
+            import textwrap
+            h3_tag = section.h3
+            if h3_tag:
+                heading = h3_tag.text.replace('\n', ' ').title() + '\n'
+                print("Заголовок: " + heading)
 
-def bbc(base_url, html_source):
-    base_url = base_url.split('.com')[0] + '.com'
-    bs = BeautifulSoup(html_source, 'html5lib')
-    posts = bs.find_all('div', {'class': 'gs-c-promo-body'})
-    # print(posts)
-    posts_dict = {}
-    for post in posts:
-        heading = post.find('a').find('h3').text
-        p_tag = post.find('p')
-        if p_tag:
-            text = p_tag.get_text()
-        else:
-            continue
-        rel_link = post.find('a')['href']
-        full_url = urljoin(base_url.rstrip('/') + '/', rel_link.lstrip('/'))
-        posts_dict[heading] = [text, full_url]
-        # print(posts_dict)
-    return posts_dict
+                full_url = h3_tag.a['href']
+                print("Url: " + full_url + '\n')
 
+                text = textwrap.fill(h3_tag.next_sibling.text.replace('\n', ''), 50)
+                print("Текст_статті: " + text)
 
-def bbc_ukraine(base_url, html_source):
-    base_url = base_url.split('.com')[0] + '.com'
-    bs = BeautifulSoup(html_source, 'html5lib')
+                article_delimiter = len(heading) * '-'
+                print(article_delimiter)
 
+                posts_dict[heading] = [text, full_url]
+        return posts_dict
 
-def get_news():
-    url = "https://www.bbc.com/news"
-    # url = "https://www.bbc.com/ukrainian"
-    # bbc_page = get_html_source(url)
-    bbc_page = get_html_source_from_folder()
-    news_dict = parse_page(url, bbc_page)
-    return news_dict
-    # pprint.pp(news_dict)
+    def get_ua_news(self):
+        bbc_page = self.get_bbc_news_ukraine_source_from_folder()
+        news_dict = self.parse_bbc_ukraine(self.ua_url, bbc_page)
+        return news_dict
+
+    def get_world_news(self):
+        bbc_page = self.get_bbc_news_source_from_folder()
+        news_dict = self.parse_bbc(self.world_url, bbc_page)
+        return news_dict
 
 
 if __name__ == '__main__':
-    get_news()
+    ns = NewsScraper()
+    pprint.pprint(ns.get_world_news())
+    pprint.pprint(ns.get_ua_news())
