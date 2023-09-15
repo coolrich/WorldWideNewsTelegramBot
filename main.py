@@ -1,13 +1,19 @@
+import sys
+
 import telebot
 from telebot import types
 from collections import deque
 from telebot.formatting import escape_markdown
 from requests.exceptions import ReadTimeout
 from news_scraper import NewsScraper
+import os
+from dotenv import load_dotenv
 
 
 class BotManager:
-    def __init__(self, token):
+    def __init__(self):
+        load_dotenv(dotenv_path="./.env")
+        token = os.getenv("API_KEY")
         self.bot = telebot.TeleBot(token)
         self.markup = None
         self.world_news_dict = None
@@ -46,7 +52,7 @@ class BotManager:
         def ua_news_handler(message):
             title = self.ua_news_deque[0] if self.ua_news_deque else None
             if title is None:
-                self.bot.send_message(chat_id=message.chat.id, text='Більше новин немає\!', parse_mode="MarkdownV2")
+                self.bot.send_message(chat_id=message.chat.id, text='Більше новин BBC немає\!', parse_mode="MarkdownV2")
                 return
             post = get_news_info(self.ua_news_dict, self.ua_news_deque, title)
             self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
@@ -55,7 +61,7 @@ class BotManager:
         def world_news_handler(message):
             title = self.world_news_deque[0] if self.world_news_deque else None
             if title is None:
-                self.bot.send_message(chat_id=message.chat.id, text='Більше новин немає\!', parse_mode="MarkdownV2")
+                self.bot.send_message(chat_id=message.chat.id, text='Більше новин BBC Ukraine немає\!\n Починаємо з початку:', parse_mode="MarkdownV2")
                 return
             post = get_news_info(self.world_news_dict, self.world_news_deque, title)
             self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
@@ -86,7 +92,9 @@ class ErrorHandler:
 
 
 if __name__ == '__main__':
-    bot_manager = BotManager(token="6513546283:AAGehuVYsklhpdNNbOGQMU1jwmjg6zVzU-Y")
+    # print(os.getenv("API_KEY"))
+    # sys.exit()
+    bot_manager = BotManager()
     while True:
         try:
             bot_manager.start()

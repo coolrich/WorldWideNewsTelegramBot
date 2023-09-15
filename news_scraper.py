@@ -64,7 +64,8 @@ class NewsScraper:
                 heading = h3_tag.text.replace('\n', ' ').title() + '\n'
                 print("Заголовок: " + heading)
 
-                full_url = h3_tag.a['href']
+                href_link = h3_tag.a['href']
+                full_url = urljoin(base_url.rstrip('/') + '/', href_link.lstrip('/'))
                 print("Url: " + full_url + '\n')
 
                 text = textwrap.fill(h3_tag.next_sibling.text.replace('\n', ''), 50)
