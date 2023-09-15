@@ -10,6 +10,8 @@ import os
 from dotenv import load_dotenv
 
 
+# TODO: Create different news instances for different users.
+
 class BotManager:
     def __init__(self):
         load_dotenv(dotenv_path="./.env")
