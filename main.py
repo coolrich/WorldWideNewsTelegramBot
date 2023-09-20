@@ -11,8 +11,6 @@ import os
 from dotenv import load_dotenv
 
 
-# TODO: Create different news instances for different users.
-
 class BotManager:
     def __init__(self):
         load_dotenv(dotenv_path="./.env")
@@ -50,33 +48,25 @@ class BotManager:
             news_deque.popleft()
             return post
 
-        @self.bot.message_handler(func=lambda message: message.text == 'Новини України')
-        def ua_news_handler(message):
+        @self.bot.message_handler(func=lambda message: message.text in ['Новини України', 'Новини Світу'])
+        def news_handler(message):
             chat_id = message.chat.id
-            ua_news_deque = get_news_deqs(chat_id)['ua']
-            while not ua_news_deque:
-                self.bot.send_message(chat_id=message.chat.id,
-                                      text='Більше новин BBC Ukraine немає\!\n Починаємо з початку:',
-                                      parse_mode="MarkdownV2")
-                self.user_news_deqs_dict[chat_id]['ua'] = deque(self.ua_news_dict)
-                ua_news_deque = get_news_deqs(chat_id)['ua']
-            title = ua_news_deque[0] if ua_news_deque else None
-            post = get_news_info(self.ua_news_dict, ua_news_deque, title)
-            self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
+            news_type = message.text
+            news_lang = 'ua' if news_type == 'Новини України' else 'en'
+            news_deque = get_news_deqs(chat_id)[news_lang]
 
-        @self.bot.message_handler(func=lambda message: message.text == 'Новини Світу')
-        def world_news_handler(message):
-            chat_id = message.chat.id
-            world_news_deque = get_news_deqs(chat_id)['en']
-            while not world_news_deque:
-                self.bot.send_message(chat_id=message.chat.id,
-                                      text='Більше новин BBC немає\!\n Починаємо з початку:',
+            while not news_deque:
+                self.bot.send_message(chat_id=chat_id,
+                                      text=f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
                                       parse_mode="MarkdownV2")
-                self.user_news_deqs_dict[chat_id]['en'] = deque(self.world_news_dict)
-                world_news_deque = get_news_deqs(chat_id)['en']
-            title = world_news_deque[0] if world_news_deque else None
-            post = get_news_info(self.world_news_dict, world_news_deque, title)
-            self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
+                self.user_news_deqs_dict[chat_id][news_lang] = deque(self.ua_news_dict) if news_lang == 'ua' else deque(
+                    self.world_news_dict)
+                news_deque = get_news_deqs(chat_id)[news_lang]
+
+            title = news_deque[0] if news_deque else None
+            news_dict = self.ua_news_dict if news_lang == 'ua' else self.world_news_dict
+            post = get_news_info(news_dict, news_deque, title)
+            self.bot.send_message(chat_id=chat_id, text=post, parse_mode="MarkdownV2")
 
         def get_news_deqs(chat_id):
             if chat_id not in self.user_news_deqs_dict:
