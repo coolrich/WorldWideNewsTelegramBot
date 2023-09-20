@@ -1,7 +1,8 @@
 /Home - BBC News_files/
-/bbc_news_ukraine_files/
-bbc_news.html
-bbc_news_ukraine.html
+bbc-news.html
+bbc-news-ukraine.html
+get-pip.py
 .idea
-venv
-venv/.env
+myenv
+.env
+Новини - BBC News Україна_files

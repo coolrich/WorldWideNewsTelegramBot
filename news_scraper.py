@@ -12,14 +12,14 @@ class NewsScraper:
 
     @staticmethod
     def get_bbc_news_source_from_folder():
-        with open("bbc_news.html", "r") as f:
+        with open("bbc-news.html", "r", encoding="UTF-8") as f:
             html_str = f.read()
         page_source = html_str
         return page_source
 
     @staticmethod
     def get_bbc_news_ukraine_source_from_folder():
-        with open("bbc_news_ukraine.html", "r") as f:
+        with open("bbc-news-ukraine.html", "r", encoding="utf-8") as f:
             html_str = f.read()
         page_source = html_str
         return page_source
@@ -78,19 +78,31 @@ class NewsScraper:
         return posts_dict
 
     def get_ua_news(self):
-        # bbc_page = self.get_bbc_news_ukraine_source_from_folder()
         bbc_page = self.get_html_source(self.ua_url)
         news_dict = self.parse_bbc_ukraine(self.ua_url, bbc_page)
         return news_dict
 
     def get_world_news(self):
-        # bbc_page = self.get_bbc_news_source_from_folder()
         bbc_page = self.get_html_source(self.world_url)
+        news_dict = self.parse_bbc(self.world_url, bbc_page)
+        return news_dict
+
+    def get_test_ua_news(self):
+        bbc_page = self.get_bbc_news_ukraine_source_from_folder()
+        news_dict = self.parse_bbc_ukraine(self.ua_url, bbc_page)
+        return news_dict
+
+    def get_test_world_news(self):
+        bbc_page = self.get_bbc_news_source_from_folder()
         news_dict = self.parse_bbc(self.world_url, bbc_page)
         return news_dict
 
 
 if __name__ == '__main__':
     ns = NewsScraper()
-    pprint.pprint(ns.get_world_news())
-    pprint.pprint(ns.get_ua_news())
+    print("World news:")
+    # pprint.pprint(ns.get_world_news())
+    pprint.pprint(ns.get_test_world_news())
+    print("UA news:")
+    # pprint.pprint(ns.get_ua_news())
+    pprint.pprint(ns.get_test_ua_news())
