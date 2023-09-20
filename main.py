@@ -54,12 +54,13 @@ class BotManager:
         def ua_news_handler(message):
             chat_id = message.chat.id
             ua_news_deque = get_news_deqs(chat_id)['ua']
-            title = ua_news_deque[0] if ua_news_deque else None
-            if title is None:
-                self.bot.send_message(chat_id=message.chat.id, text='Більше новин BBC немає\! Починаємо з початку:',
+            while not ua_news_deque:
+                self.bot.send_message(chat_id=message.chat.id,
+                                      text='Більше новин BBC Ukraine немає\!\n Починаємо з початку:',
                                       parse_mode="MarkdownV2")
-                # Implementation of repeat news
-                return
+                self.user_news_deqs_dict[chat_id]['ua'] = deque(self.ua_news_dict)
+                ua_news_deque = get_news_deqs(chat_id)['ua']
+            title = ua_news_deque[0] if ua_news_deque else None
             post = get_news_info(self.ua_news_dict, ua_news_deque, title)
             self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
 
@@ -67,15 +68,13 @@ class BotManager:
         def world_news_handler(message):
             chat_id = message.chat.id
             world_news_deque = get_news_deqs(chat_id)['en']
-            title = world_news_deque[0] if world_news_deque else None
-            if title is None:
+            while not world_news_deque:
                 self.bot.send_message(chat_id=message.chat.id,
-                                      text='Більше новин BBC Ukraine немає\!\n Починаємо з початку:',
+                                      text='Більше новин BBC немає\!\n Починаємо з початку:',
                                       parse_mode="MarkdownV2")
-                # Implementation of repeat news
-                # self.user_news_deqs_dict[chat_id]['en'] = deque(self.world_news_dict)
-                # title =
-                return
+                self.user_news_deqs_dict[chat_id]['en'] = deque(self.world_news_dict)
+                world_news_deque = get_news_deqs(chat_id)['en']
+            title = world_news_deque[0] if world_news_deque else None
             post = get_news_info(self.world_news_dict, world_news_deque, title)
             self.bot.send_message(chat_id=message.chat.id, text=post, parse_mode="MarkdownV2")
 
