@@ -48,6 +48,11 @@ class NewsScraper:
                 continue
             rel_link = post.find('a')['href']
             full_url = urljoin(base_url.rstrip('/') + '/', rel_link.lstrip('/'))
+            print("Heading: " + heading + '\n')
+            print("Url: " + full_url + '\n')
+            print("Text: " + text)
+            article_delimiter = len(heading) * '-'
+            print(article_delimiter)
             posts_dict[heading] = [text, full_url]
         return posts_dict
 

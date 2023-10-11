@@ -1,5 +1,7 @@
 import pprint
 import sys
+import concurrent.futures
+import time
 
 import telebot
 from telebot import types
@@ -11,8 +13,9 @@ import os
 from dotenv import load_dotenv
 
 
+# Developing of  parallel execution of users message handling and news parsing.
 class BotManager:
-    def __init__(self):
+    def __init__(self, a_news_manager):
         load_dotenv(dotenv_path="./.env")
         token = os.getenv("API_KEY")
         self.bot = telebot.TeleBot(token)
@@ -21,12 +24,15 @@ class BotManager:
         # self.ua_news_dict = None
         self.world_news_deque = None
         # self.ua_news_deque = None
-        self.news_manager = NewsManager()
+        self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
-        self.ua_news_dict = self.news_manager.get_ua_news()
-        self.world_news_dict = self.news_manager.get_world_news()
+        self.ua_news_dict = None
+        self.world_news_dict = None
 
     def start(self):
+        # self.news_manager.get_ua_news(self)
+        # self.news_manager.get_world_news(self)
+        print("In start")
 
         @self.bot.message_handler(commands=['start', 'help'])
         def send_welcome(message):
@@ -79,20 +85,34 @@ class BotManager:
             self.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню нижче:",
                               reply_markup=self.markup)
 
+        print("Bot manager has been starting...")
         self.bot.polling()
+
+
+import threading
 
 
 class NewsManager:
     def __init__(self):
         self.scraper = NewsScraper()
+        self.lock = threading.Lock()
 
-    def get_world_news(self):
-        return self.scraper.get_test_world_news()
+    def get_world_news(self, a_bot_manager: BotManager, delay=60):
+        # with self.lock:
+        print("In get_world_news")
+        a_bot_manager.world_news_dict = self.scraper.get_test_world_news()
+        time.sleep(delay)
+        # return self.scraper.get_test_world_news()
         # return self.scraper.get_world_news()
 
-    def get_ua_news(self):
-        return self.scraper.get_test_ua_news()
-        # return self.scraper.get_ua_news()
+    def get_ua_news(self, a_bot_manager: BotManager, delay=60):
+        # with self.lock:
+        print("In get_ua_news")
+        a_bot_manager.ua_news_dict = self.scraper.get_test_ua_news()
+        time.sleep(delay)
+        # return self.scraper.get_test_ua_news()
+    # return self.scraper.get_test_ua_news()
+    # return self.scraper.get_ua_news()
 
 
 class ErrorHandler:
@@ -101,12 +121,35 @@ class ErrorHandler:
         print(e)
 
 
-if __name__ == '__main__':
-    # print(os.getenv("API_KEY"))
-    # sys.exit()
-    bot_manager = BotManager()
+class FunctionExecutor:
+    def __init__(self, max_workers, interval):
+        self.max_workers = max_workers
+        self.interval = interval
+
+    def execute_functions_periodically(self, *functions_with_args):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = []
+            for func, args in functions_with_args:
+                print("function:", func, "args:", args)
+                futures.append(executor.submit(func, *args))
+            concurrent.futures.wait(futures)
+            time.sleep(self.interval)
+
+
+def start_bot_manager():
     while True:
         try:
             bot_manager.start()
         except ReadTimeout as rt:
             ErrorHandler.handle_read_timeout_error(rt)
+
+
+if __name__ == '__main__':
+    news_manager = NewsManager()
+    bot_manager = BotManager(news_manager)
+    function_executor = FunctionExecutor(max_workers=3, interval=1)
+    function_executor.execute_functions_periodically(
+        (news_manager.get_ua_news, (bot_manager, 60,)),
+        (news_manager.get_world_news, (bot_manager, 60,)),
+        (start_bot_manager, (None,))
+    )
