@@ -90,7 +90,7 @@ class BotManager:
                                   reply_markup=self.markup)
 
             print("Bot manager has been starting...")
-            self.bot.polling(none_stop=True)
+            self.bot.polling()
 
     @staticmethod
     def start_bot_manager(a_bot_manager: Type["BotManager"]):
@@ -99,6 +99,7 @@ class BotManager:
                 print("Starting bot manager...")
                 a_bot_manager.start()
             except ReadTimeout as rt:
+                print("In ReadTimeout Exception handler of start_bot_manger() static method")
                 ErrorHandler.handle_read_timeout_error(rt)
 
 
@@ -112,6 +113,9 @@ class NewsManager:
             with self.lock:
                 print("In get_world_news")
                 a_bot_manager.world_news_dict = self.scraper.get_test_world_news()
+                print("-"*50)
+                print(f"Count of World news: {len(a_bot_manager.world_news_dict)}")
+                print("-"*50)
             print(f"Sleeping in get_world_news on {delay}...")
             time.sleep(delay)
         # return self.scraper.get_test_world_news()
@@ -122,6 +126,9 @@ class NewsManager:
             with self.lock:
                 print("In get_ua_news")
                 a_bot_manager.ua_news_dict = self.scraper.get_test_ua_news()
+                print("-"*50)
+                print(f"Count of UA news: {len(a_bot_manager.ua_news_dict)}")
+                print("-"*50)
             print(f"Sleeping in get_ua_news on {delay}...")
             time.sleep(delay)
     # return self.scraper.get_test_ua_news()
@@ -160,22 +167,13 @@ class StartTheBot:
         self.bot_manager = BotManager(self.news_manager, self.lock)
         self.function_executor = FunctionExecutor(max_workers=3)
 
-    # def start_bot_manager(self):
-    #     while True:
-    #         try:
-    #             print("Starting bot manager...")
-    #             self.bot_manager.start()
-    #         except ReadTimeout as rt:
-    #             ErrorHandler.handle_read_timeout_error(rt)
-
     def start(self):
         self.function_executor.execute_functions_periodically(
             (self.news_manager.get_ua_news, (self.bot_manager, 60,)),
             (self.news_manager.get_world_news, (self.bot_manager, 60,)),
-            (self.bot_manager.start_bot_manager, (self.bot_manager, ))
+            (self.bot_manager.start_bot_manager, (self.bot_manager,))
         )
 
 
 if __name__ == "__main__":
-    bot_starter = StartTheBot()
-    bot_starter.start()
+    StartTheBot().start()
