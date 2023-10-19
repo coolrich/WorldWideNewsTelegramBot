@@ -90,7 +90,7 @@ class BotManager:
                                   reply_markup=self.markup)
 
             print("Bot manager has been starting...")
-            self.bot.polling()
+        self.bot.polling()
 
     @staticmethod
     def start_bot_manager(a_bot_manager: Type["BotManager"]):
@@ -156,7 +156,9 @@ class FunctionExecutor:
                     futures.append(executor.submit(func, *args))
                 else:
                     futures.append(executor.submit(func))
+            print("After for loop in execute_functions_periodically")
             concurrent.futures.wait(futures)
+            print("After wait in execute_functions_periodically")
             # time.sleep(60)
 
 
@@ -169,8 +171,8 @@ class StartTheBot:
 
     def start(self):
         self.function_executor.execute_functions_periodically(
-            (self.news_manager.get_ua_news, (self.bot_manager, 60,)),
-            (self.news_manager.get_world_news, (self.bot_manager, 60,)),
+            (self.news_manager.get_ua_news, (self.bot_manager, 10,)),
+            (self.news_manager.get_world_news, (self.bot_manager, 10,)),
             (self.bot_manager.start_bot_manager, (self.bot_manager,))
         )
 
