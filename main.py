@@ -16,7 +16,16 @@ from dotenv import load_dotenv
 
 class BotController:
     def __init__(self):
-        pass
+        load_dotenv(dotenv_path="./.env")
+        token = os.getenv("API_KEY")
+        self.lock = a_lock
+        self.bot = telebot.TeleBot(token)
+        self.news_manager = a_news_manager
+        self.user_news_deqs_dict = {}
+        self.markup = None
+        self.world_news_deque = None
+        self.ua_news_dict = None
+        self.world_news_dict = None
 
 
 class BotManager:
