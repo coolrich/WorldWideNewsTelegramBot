@@ -14,20 +14,21 @@ import os
 from dotenv import load_dotenv
 
 
-# Developing of  parallel execution of users message handling and news parsing.
+class BotController:
+    def __init__(self):
+        pass
+
+
 class BotManager:
     def __init__(self, a_news_manager, a_lock):
-        self.lock = a_lock
         load_dotenv(dotenv_path="./.env")
         token = os.getenv("API_KEY")
+        self.lock = a_lock
         self.bot = telebot.TeleBot(token)
-        self.markup = None
-        self.world_news_dict = None
-        # self.ua_news_dict = None
-        self.world_news_deque = None
-        # self.ua_news_deque = None
         self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
+        self.markup = None
+        self.world_news_deque = None
         self.ua_news_dict = None
         self.world_news_dict = None
 
@@ -113,9 +114,9 @@ class NewsManager:
             with self.lock:
                 print("In get_world_news")
                 a_bot_manager.world_news_dict = self.scraper.get_test_world_news()
-                print("-"*50)
+                print("-" * 50)
                 print(f"Count of World news: {len(a_bot_manager.world_news_dict)}")
-                print("-"*50)
+                print("-" * 50)
             print(f"Sleeping in get_world_news on {delay}...")
             time.sleep(delay)
         # return self.scraper.get_test_world_news()
@@ -126,9 +127,9 @@ class NewsManager:
             with self.lock:
                 print("In get_ua_news")
                 a_bot_manager.ua_news_dict = self.scraper.get_test_ua_news()
-                print("-"*50)
+                print("-" * 50)
                 print(f"Count of UA news: {len(a_bot_manager.ua_news_dict)}")
-                print("-"*50)
+                print("-" * 50)
             print(f"Sleeping in get_ua_news on {delay}...")
             time.sleep(delay)
     # return self.scraper.get_test_ua_news()
