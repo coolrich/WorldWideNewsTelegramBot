@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 
 class BotController:
-    def __init__(self):
+    def __init__(self, a_lock, a_news_manager):
         load_dotenv(dotenv_path="./.env")
         token = os.getenv("API_KEY")
         self.lock = a_lock
