@@ -1,17 +1,5 @@
 import concurrent.futures
-import os
 import threading
-import time
-from collections import deque
-from typing import Type
-
-import telebot
-from dotenv import load_dotenv
-from requests.exceptions import ReadTimeout
-from telebot import types
-from telebot.formatting import escape_markdown
-
-from news_scraper import NewsScraper
 
 
 class FunctionExecutor:
