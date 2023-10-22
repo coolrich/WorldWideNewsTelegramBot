@@ -21,7 +21,7 @@ class BotModel:
         self.lock = a_lock
         self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
-        self.markup = None
+        # self.markup = None
         self.world_news_deque = None
         self.ua_news_dict = None
         self.world_news_dict = None
@@ -33,7 +33,7 @@ class BotModel:
                 'ua': deque(self.ua_news_dict)}
         return self.user_news_deqs_dict[a_chat_id]
 
-    def get_message_data(self, message: types.Message):
+    def get_data_from_message(self, message: types.Message):
         """
         Retrieves the message data for processing.
 
@@ -71,7 +71,7 @@ class BotModel:
 
 class BotView:
     def __init__(self):
-        pass
+        self.__markup = None
 
     @staticmethod
     def get_news_info(news_dict, news_deque, title):
@@ -87,10 +87,17 @@ class BotView:
         news_deque.popleft()
         return post
 
+    def create_markup(self):
+        self.__markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        self.__markup.add(types.KeyboardButton('Новини Світу'))
+        self.__markup.add(types.KeyboardButton('Новини України'))
+        return self.__markup
+
 
 class BotController:
     def __init__(self, a_news_manager, a_lock):
         self.bot_model = BotModel(a_news_manager, a_lock)
+        self.bot_view = BotView()
         self.bot = telebot.TeleBot(self.bot_model.token)
 
     def start(self):
@@ -99,16 +106,13 @@ class BotController:
 
             @self.bot.message_handler(commands=['start', 'help'])
             def send_welcome(message):
-                self.bot_model.markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-                self.bot_model.markup.add(types.KeyboardButton('Новини Світу'))
-                self.bot_model.markup.add(types.KeyboardButton('Новини України'))
                 self.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини",
-                                  reply_markup=self.bot_model.markup)
+                                  reply_markup=self.bot_view.create_markup())
 
             @self.bot.message_handler(
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
-                data = self.bot_model.get_message_data(message)
+                data = self.bot_model.get_data_from_message(message)
                 self.bot.send_message(chat_id=data['chat_id'],
                                       text=data['post'],
                                       parse_mode=data['parse_mode']
@@ -118,7 +122,7 @@ class BotController:
             def default_handler(message):
                 self.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню "
                                            "нижче:",
-                                  reply_markup=self.bot_model.markup)
+                                  reply_markup=self.bot_view.create_markup())
 
             print("Bot manager has been starting...")
         self.bot.polling()
