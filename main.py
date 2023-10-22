@@ -17,8 +17,7 @@ from news_scraper import NewsScraper
 class BotModel:
     def __init__(self, a_news_manager, a_lock):
         load_dotenv(dotenv_path="./.env")
-        token = os.getenv("API_KEY")
-        self.bot = telebot.TeleBot(token)
+        self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
@@ -50,20 +49,21 @@ class BotView:
 class BotController:
     def __init__(self, a_news_manager, a_lock):
         self.bot_model = BotModel(a_news_manager, a_lock)
+        self.bot = telebot.TeleBot(self.bot_model.token)
 
     def start(self):
         with self.bot_model.lock:
             print("In start")
 
-            @self.bot_model.bot.message_handler(commands=['start', 'help'])
+            @self.bot.message_handler(commands=['start', 'help'])
             def send_welcome(message):
                 self.bot_model.markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
                 self.bot_model.markup.add(types.KeyboardButton('Новини Світу'))
                 self.bot_model.markup.add(types.KeyboardButton('Новини України'))
-                self.bot_model.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини",
+                self.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини",
                                             reply_markup=self.bot_model.markup)
 
-            @self.bot_model.bot.message_handler(
+            @self.bot.message_handler(
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
                 def get_news_deqs(chat_id):
@@ -79,7 +79,7 @@ class BotController:
                 news_deque = get_news_deqs(chat_id)[news_lang]
 
                 if not news_deque:
-                    self.bot_model.bot.send_message(chat_id=chat_id,
+                    self.bot.send_message(chat_id=chat_id,
                                                     text=f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
                                                     parse_mode="MarkdownV2")
                     self.bot_model.user_news_deqs_dict[chat_id][news_lang] = deque(
@@ -90,16 +90,16 @@ class BotController:
                 title = news_deque[0] if news_deque else None
                 news_dict = self.bot_model.ua_news_dict if news_lang == 'ua' else self.bot_model.world_news_dict
                 post = BotView.get_news_info(news_dict, news_deque, title)
-                self.bot_model.bot.send_message(chat_id=chat_id, text=post, parse_mode="MarkdownV2")
+                self.bot.send_message(chat_id=chat_id, text=post, parse_mode="MarkdownV2")
 
-            @self.bot_model.bot.message_handler(func=lambda message: True)
+            @self.bot.message_handler(func=lambda message: True)
             def default_handler(message):
-                self.bot_model.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню "
+                self.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню "
                                                      "нижче:",
                                             reply_markup=self.bot_model.markup)
 
             print("Bot manager has been starting...")
-        self.bot_model.bot.polling()
+        self.bot.polling()
 
     @staticmethod
     def start_bot_manager(a_bot_controller: Type["BotController"]):
