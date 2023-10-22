@@ -1,7 +1,7 @@
 import concurrent.futures
 import threading
-
-
+from news_manager import NewsManager
+from bot_mvc import BotController
 class FunctionExecutor:
     def __init__(self, max_workers):
         self.max_workers = max_workers
