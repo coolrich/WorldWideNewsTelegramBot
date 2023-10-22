@@ -60,6 +60,13 @@ class BotController:
             @self.bot_model.bot.message_handler(
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
+                def get_news_deqs(chat_id):
+                    if chat_id not in self.bot_model.user_news_deqs_dict:
+                        self.bot_model.user_news_deqs_dict[chat_id] = {
+                            'en': deque(self.bot_model.world_news_dict),
+                            'ua': deque(self.bot_model.ua_news_dict)}
+                    return self.bot_model.user_news_deqs_dict[chat_id]
+
                 chat_id = message.chat.id
                 news_type = message.text
                 news_lang = 'ua' if news_type == 'Новини України' else 'en'
@@ -79,12 +86,7 @@ class BotController:
                 post = get_news_info(news_dict, news_deque, title)
                 self.bot_model.bot.send_message(chat_id=chat_id, text=post, parse_mode="MarkdownV2")
 
-            def get_news_deqs(chat_id):
-                if chat_id not in self.bot_model.user_news_deqs_dict:
-                    self.bot_model.user_news_deqs_dict[chat_id] = {
-                        'en': deque(self.bot_model.world_news_dict),
-                        'ua': deque(self.bot_model.ua_news_dict)}
-                return self.bot_model.user_news_deqs_dict[chat_id]
+
 
             @self.bot_model.bot.message_handler(func=lambda message: True)
             def default_handler(message):
