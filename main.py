@@ -33,6 +33,41 @@ class BotModel:
                 'ua': deque(self.ua_news_dict)}
         return self.user_news_deqs_dict[a_chat_id]
 
+    def get_message_data(self, message: types.Message):
+        """
+        Retrieves the message data for processing.
+
+        Args:
+            message (types.Message): The message object containing the data.
+
+        Returns:
+            dict: A dictionary containing the chat ID, post content, and parse mode.
+
+        Raises:
+            None
+        """
+        parse_mode = 'MarkdownV2'
+        chat_id = message.chat.id
+        message_text = message.text
+        news_lang = 'ua' if message_text == 'Новини України' else 'en'
+        news_deque = self.get_news_deqs(chat_id)[news_lang]
+        if not news_deque:
+            self.user_news_deqs_dict[chat_id][news_lang] = (
+                deque(self.ua_news_dict)) if news_lang == 'ua' else \
+                (deque(self.world_news_dict))
+            return {'chat_id': chat_id,
+                    'post': f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
+                    'parse_mode': parse_mode
+                    }
+
+        title = news_deque[0] if news_deque else None
+        news_dict = self.ua_news_dict if news_lang == 'ua' else self.world_news_dict
+        post = BotView.get_news_info(news_dict, news_deque, title)
+        return {'chat_id': chat_id,
+                'post': post,
+                'parse_mode': parse_mode
+                }
+
 
 class BotView:
     def __init__(self):
@@ -73,24 +108,11 @@ class BotController:
             @self.bot.message_handler(
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
-                chat_id = message.chat.id
-                news_type = message.text
-                news_lang = 'ua' if news_type == 'Новини України' else 'en'
-                news_deque = self.bot_model.get_news_deqs(chat_id)[news_lang]
-
-                if not news_deque:
-                    self.bot.send_message(chat_id=chat_id,
-                                          text=f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
-                                          parse_mode="MarkdownV2")
-                    self.bot_model.user_news_deqs_dict[chat_id][news_lang] = deque(
-                        self.bot_model.ua_news_dict) if news_lang == 'ua' else deque(
-                        self.bot_model.world_news_dict)
-                    news_deque = self.bot_model.get_news_deqs(chat_id)[news_lang]
-
-                title = news_deque[0] if news_deque else None
-                news_dict = self.bot_model.ua_news_dict if news_lang == 'ua' else self.bot_model.world_news_dict
-                post = BotView.get_news_info(news_dict, news_deque, title)
-                self.bot.send_message(chat_id=chat_id, text=post, parse_mode="MarkdownV2")
+                data = self.bot_model.get_message_data(message)
+                self.bot.send_message(chat_id=data['chat_id'],
+                                      text=data['post'],
+                                      parse_mode=data['parse_mode']
+                                      )
 
             @self.bot.message_handler(func=lambda message: True)
             def default_handler(message):
