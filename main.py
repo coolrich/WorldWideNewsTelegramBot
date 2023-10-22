@@ -59,7 +59,7 @@ class BotController:
 
             @self.bot_model.bot.message_handler(
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
-            def news_handler(message):
+            def send_news(message):
                 chat_id = message.chat.id
                 news_type = message.text
                 news_lang = 'ua' if news_type == 'Новини України' else 'en'
