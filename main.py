@@ -26,6 +26,13 @@ class BotModel:
         self.ua_news_dict = None
         self.world_news_dict = None
 
+    def get_news_deqs(self, a_chat_id):
+        if a_chat_id not in self.user_news_deqs_dict:
+            self.user_news_deqs_dict[a_chat_id] = {
+                'en': deque(self.world_news_dict),
+                'ua': deque(self.ua_news_dict)}
+        return self.user_news_deqs_dict[a_chat_id]
+
 
 class BotView:
     def __init__(self):
@@ -61,31 +68,24 @@ class BotController:
                 self.bot_model.markup.add(types.KeyboardButton('Новини Світу'))
                 self.bot_model.markup.add(types.KeyboardButton('Новини України'))
                 self.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини",
-                                            reply_markup=self.bot_model.markup)
+                                  reply_markup=self.bot_model.markup)
 
             @self.bot.message_handler(
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
-                def get_news_deqs(chat_id):
-                    if chat_id not in self.bot_model.user_news_deqs_dict:
-                        self.bot_model.user_news_deqs_dict[chat_id] = {
-                            'en': deque(self.bot_model.world_news_dict),
-                            'ua': deque(self.bot_model.ua_news_dict)}
-                    return self.bot_model.user_news_deqs_dict[chat_id]
-
                 chat_id = message.chat.id
                 news_type = message.text
                 news_lang = 'ua' if news_type == 'Новини України' else 'en'
-                news_deque = get_news_deqs(chat_id)[news_lang]
+                news_deque = self.bot_model.get_news_deqs(chat_id)[news_lang]
 
                 if not news_deque:
                     self.bot.send_message(chat_id=chat_id,
-                                                    text=f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
-                                                    parse_mode="MarkdownV2")
+                                          text=f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
+                                          parse_mode="MarkdownV2")
                     self.bot_model.user_news_deqs_dict[chat_id][news_lang] = deque(
                         self.bot_model.ua_news_dict) if news_lang == 'ua' else deque(
                         self.bot_model.world_news_dict)
-                    news_deque = get_news_deqs(chat_id)[news_lang]
+                    news_deque = self.bot_model.get_news_deqs(chat_id)[news_lang]
 
                 title = news_deque[0] if news_deque else None
                 news_dict = self.bot_model.ua_news_dict if news_lang == 'ua' else self.bot_model.world_news_dict
@@ -95,8 +95,8 @@ class BotController:
             @self.bot.message_handler(func=lambda message: True)
             def default_handler(message):
                 self.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню "
-                                                     "нижче:",
-                                            reply_markup=self.bot_model.markup)
+                                           "нижче:",
+                                  reply_markup=self.bot_model.markup)
 
             print("Bot manager has been starting...")
         self.bot.polling()
