@@ -39,6 +39,5 @@ class StartTheBot:
         )
 
 
-
 if __name__ == "__main__":
     StartTheBot().start()
