@@ -91,11 +91,11 @@ class ApplicationController:
         self.start_thread.join()
 
 
+# Test
 if __name__ == "__main__":
     app_controller = ApplicationController()
-    for i in range(2):
-        app_controller.start()
-        # time.sleep(10)
-        print("Start to shutdown the program...")
-        app_controller.stop()
-        print("The program has been finished.")
+    app_controller.start()
+    time.sleep(10)
+    print("Start program shutdown...")
+    app_controller.stop()
+    print("The program has been finished.")
