@@ -122,7 +122,8 @@ class BotController:
                                   reply_markup=self.bot_view.create_markup())
 
             print("Bot manager has been starting...")
-        self.bot.polling()
+        self.bot.polling(timeout=0, long_polling_timeout=1)
+        print("End of the start() method in BotController class")
 
     @staticmethod
     def start_bot(a_bot_controller: "BotController"):
@@ -137,11 +138,11 @@ class BotController:
 
     @staticmethod
     def stop_bot(a_bot_controller: "BotController"):
-        condition = a_bot_controller.program_state_controller.get_condition()
+        lock = a_bot_controller.program_state_controller.get_condition()
         psc = a_bot_controller.program_state_controller
-        with condition:
+        with lock:
             while psc.get_state():
-                print("In condition before wait in stop_bot()")
-                condition.wait()
+                print("In lock before wait in stop_bot()")
+                lock.wait()
         a_bot_controller.bot.stop_polling()
         print("Bot stopped")
