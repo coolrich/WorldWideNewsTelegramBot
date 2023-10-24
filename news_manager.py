@@ -10,7 +10,8 @@ class NewsManager:
         self.program_state_controller = program_state_controller
 
     def get_world_news(self, a_bot_controller: BotController, delay: int = 60):
-        while self.program_state_controller.get_state():
+        get_program_state = self.program_state_controller.get_state
+        while get_program_state():
             with self.lock:
                 print("In get_world_news")
                 a_bot_controller.bot_model.world_news_dict = self.scraper.get_test_world_news()
@@ -21,7 +22,8 @@ class NewsManager:
             time.sleep(delay)
 
     def get_ua_news(self, a_bot_controller: BotController, delay: int = 60):
-        while self.program_state_controller.get_state():
+        get_program_state = self.program_state_controller.get_state
+        while get_program_state():
             with self.lock:
                 print("In get_ua_news")
                 a_bot_controller.bot_model.ua_news_dict = self.scraper.get_test_ua_news()
