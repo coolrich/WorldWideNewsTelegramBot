@@ -91,10 +91,11 @@ class BotView:
 
 
 class BotController:
-    def __init__(self, a_news_manager, a_lock):
+    def __init__(self, a_news_manager, a_lock, program_state_controller):
         self.bot_model = BotModel(a_news_manager, a_lock)
         self.bot_view = BotView()
         self.bot = telebot.TeleBot(self.bot_model.token)
+        self.program_state_controller = program_state_controller
 
     def start(self):
         with self.bot_model.lock:
@@ -124,11 +125,23 @@ class BotController:
         self.bot.polling()
 
     @staticmethod
-    def start_bot_controller(a_bot_controller: Type["BotController"]):
-        while True:
+    def start_bot(a_bot_controller: "BotController"):
+        get_program_state = a_bot_controller.program_state_controller.get_state
+        while get_program_state():
             try:
                 print("Starting bot controller...")
                 a_bot_controller.start()
             except ReadTimeout as rt:
                 print("In ReadTimeout Exception handler of start_bot_controller() static method")
                 ErrorHandler.handle_read_timeout_error(rt)
+
+    @staticmethod
+    def stop_bot(a_bot_controller: "BotController"):
+        condition = a_bot_controller.program_state_controller.get_condition()
+        psc = a_bot_controller.program_state_controller
+        with condition:
+            while psc.get_state():
+                print("In condition before wait in stop_bot()")
+                condition.wait()
+        a_bot_controller.bot.stop_polling()
+        print("Bot stopped")
