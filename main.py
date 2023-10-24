@@ -21,7 +21,26 @@ class FunctionExecutor:
             print("After for loop in execute_functions_periodically")
             concurrent.futures.wait(futures)
             print("After wait in execute_functions_periodically")
-            # time.sleep(60)
+
+
+class ProgramStateControllerSingleton:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+            cls._instance.state = True
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, "state"):
+            self.state = True
+
+    def get_state(self):
+        return self.state
+
+    def set_state(self, state):
+        self.state = state
 
 
 class StartTheBot:
