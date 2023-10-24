@@ -58,11 +58,10 @@ class Application:
         self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller)
         self.function_executor = FunctionExecutor(3)
 
-    def start(self):
-        download_delay = 120
+    def start(self, download_news_delay: int = 120):
         self.function_executor.execute_functions_periodically(
-            (self.news_manager.get_ua_news, (self.bot_controller, download_delay,)),
-            (self.news_manager.get_world_news, (self.bot_controller, download_delay,)),
+            (self.news_manager.get_ua_news, (self.bot_controller, download_news_delay,)),
+            (self.news_manager.get_world_news, (self.bot_controller, download_news_delay,)),
             (self.bot_controller.start_bot, (self.bot_controller,)),
             (self.bot_controller.stop_bot, (self.bot_controller,)),
         )
