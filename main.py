@@ -74,14 +74,28 @@ class Application:
         print("End of the stop() method in Application class")
 
 
+class ApplicationController:
+    def __init__(self):
+        self.app = Application()
+        self.start_thread = None
+        self.stop_thread = None
+
+    def start(self):
+        self.start_thread = threading.Thread(target=self.app.start)
+        self.stop_thread = threading.Thread(target=self.app.stop)
+        self.start_thread.start()
+
+    def stop(self):
+        self.stop_thread.start()
+        self.stop_thread.join()
+        self.start_thread.join()
+
+
 if __name__ == "__main__":
-    control_panel = Application()
-    start_thread = threading.Thread(target=control_panel.start)
-    stop_thread = threading.Thread(target=control_panel.stop)
-    start_thread.start()
-    time.sleep(50)
-    print("Start to shutdown the program...")
-    stop_thread.start()
-    stop_thread.join()
-    start_thread.join()
-    print("The program has been finished.")
+    app_controller = ApplicationController()
+    for i in range(2):
+        app_controller.start()
+        # time.sleep(10)
+        print("Start to shutdown the program...")
+        app_controller.stop()
+        print("The program has been finished.")
