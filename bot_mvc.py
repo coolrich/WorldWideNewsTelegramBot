@@ -1,4 +1,5 @@
 import os
+import threading
 from collections import deque
 from typing import Type
 
@@ -98,7 +99,9 @@ class BotController:
         self.program_state_controller = program_state_controller
 
     def start(self):
-        with self.bot_model.lock:
+        lock = self.bot_model.lock
+        psc = self.program_state_controller
+        with lock:
             print("In start")
 
             @self.bot.message_handler(commands=['start', 'help'])
@@ -122,8 +125,17 @@ class BotController:
                                   reply_markup=self.bot_view.create_markup())
 
             print("Bot manager has been starting...")
-        self.bot.polling(timeout=0, long_polling_timeout=1)
+            # self.bot.polling(timeout=0, long_polling_timeout=1)
+            polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
+            polling_thread.start()
+            print("Bot polling has been started...")
+            self.__block_until_program_finish(lock, psc)
         print("End of the start() method in BotController class")
+
+    @staticmethod
+    def __block_until_program_finish(lock, psc):
+        while psc.get_state():
+            lock.wait()
 
     @staticmethod
     def start_bot(a_bot_controller: "BotController"):
