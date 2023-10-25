@@ -57,9 +57,8 @@ class Application:
         self.news_manager = NewsManager(self.condition_lock, self.program_state_controller)
         self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller)
         self.function_executor = FunctionExecutor(3)
-
-    def start(self, download_news_delay: int = 120):
-        self.__run_tasks(download_news_delay)
+        self.start_thread = None
+        self.stop_thread = None
 
     def __run_tasks(self, download_news_delay):
         self.function_executor.execute_functions_periodically(
@@ -69,36 +68,30 @@ class Application:
             (self.bot_controller.stop_bot, (self.bot_controller,)),
         )
 
-    def stop(self):
-        lock = self.program_state_controller.get_condition()
-        with lock:
-            self.program_state_controller.set_state(False)
-            self.program_state_controller.notify()
-        print("End of the stop() method in Application class")
-
-
-class ApplicationController:
-    def __init__(self):
-        self.app = Application()
-        self.start_thread = None
-        self.stop_thread = None
-
-    def start(self):
-        self.start_thread = threading.Thread(target=self.app.start)
-        self.stop_thread = threading.Thread(target=self.app.stop)
+    def start(self, download_news_delay: int = 120):
+        # self.__run_tasks(download_news_delay)
+        self.start_thread = threading.Thread(target=self.__run_tasks, args=(download_news_delay,))
+        self.stop_thread = threading.Thread(target=self.__stop_tasks)
         self.start_thread.start()
 
     def stop(self):
         self.stop_thread.start()
         self.stop_thread.join()
         self.start_thread.join()
+        # print("End of the stop() method in Application class")
+
+    def __stop_tasks(self):
+        lock = self.program_state_controller.get_condition()
+        with lock:
+            self.program_state_controller.set_state(False)
+            self.program_state_controller.notify()
 
 
-# Test
+# Test the Application
 if __name__ == "__main__":
-    app_controller = ApplicationController()
-    app_controller.start()
+    app = Application()
+    app.start()
     time.sleep(10)
     print("Start program shutdown...")
-    app_controller.stop()
+    app.stop()
     print("The program has been finished.")
