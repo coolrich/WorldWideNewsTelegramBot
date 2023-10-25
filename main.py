@@ -59,6 +59,9 @@ class Application:
         self.function_executor = FunctionExecutor(3)
 
     def start(self, download_news_delay: int = 120):
+        self.__run_tasks(download_news_delay)
+
+    def __run_tasks(self, download_news_delay):
         self.function_executor.execute_functions_periodically(
             (self.news_manager.get_ua_news, (self.bot_controller, download_news_delay,)),
             (self.news_manager.get_world_news, (self.bot_controller, download_news_delay,)),
