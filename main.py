@@ -75,7 +75,7 @@ class Application:
             self.program_state_controller.notify()
 
     def start(self, download_news_delay: int = 120):
-        # self.__run_tasks(download_news_delay)
+        self.program_state_controller.set_state(True)
         self.start_thread = threading.Thread(target=self.__run_tasks, args=(download_news_delay,))
         self.stop_thread = threading.Thread(target=self.__stop_tasks)
         self.start_thread.start()

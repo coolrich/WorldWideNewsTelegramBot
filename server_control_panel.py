@@ -1,68 +1,67 @@
+import os
+import signal
+
 from flask import Flask, render_template
-import main
+from main import Application
 import threading
 
-# Отримайте токен бота від BotFather
-bot_token = 'YOUR_BOT_TOKEN'
-
-# Створіть екземпляр бота
-bot = telebot.TeleBot(bot_token)
-
 # Змінна-флаг для вказування на стан бота (активний або призупинений)
-bot_active = True
-bot_thread = None
+bot_active = False
 
 # Створіть веб-сервер Flask
-app = Flask(__name__)
+bot = Application()
+flask_app = Flask(__name__)
+
 
 # Обробник головної сторінки
-@app.route('/')
+@flask_app.route('/')
 def index():
-   return render_template('index.html')
+    return render_template('index.html')
+
 
 # Обробник для команди запуску бота
-@app.route('/start_bot')
+@flask_app.route('/start_bot')
 def start_bot():
-   global bot_active
-   global bot_thread
+    global bot_active
 
-   if not bot_active:
-       bot_thread = threading.Thread(target=bot.polling)
-       bot_thread.start()
-       bot_active = True
+    if not bot_active:
+        bot.start()
+        bot_active = True
 
-   return "Bot started!"
+    return "Bot started!"
+
 
 # Обробник для команди призупинення бота
-@app.route('/pause_bot')
-def pause_bot():
-   global bot_active
-   global bot_thread
+# @flask_app.route('/pause_bot')
+# def pause_bot():
+#     global bot_active
+#     if bot_active:
+#         bot.stop()
+#         bot_active = False
+#
+#     return "Bot paused!"
 
-   if bot_active:
-       if bot_thread:
-           bot_thread.join()
-           bot_thread = None
-       bot_active = False
-
-   return "Bot paused!"
 
 # Обробник для команди зупинення бота
-@app.route('/stop_bot')
+@flask_app.route('/stop_bot')
 def stop_bot():
-   global bot_active
-   global bot_thread
+    global bot_active
+    if bot_active:
+        bot.stop()
+        bot_active = False
 
-   if bot_active:
-       if bot_thread:
-           bot_thread.join()
-           bot_thread = None
-       bot_active = False
-       bot.stop_polling()
+    return "Bot stopped!"
 
-   return "Bot stopped!"
 
-# Додайте інші обробники за потребою
+@flask_app.route('/exit_control_panel')
+def exit_control_panel():
+    global bot_active
+    if bot_active:
+        bot.stop()
+        bot_active = False
+    print('Shutting down gracefully...')
+    os.kill(os.getpid(), signal.SIGINT)
+    return 'Server shutting down...'
 
 if __name__ == '__main__':
-   app.run(debug=True)
+    flask_app.run(debug=True)
