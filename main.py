@@ -2,7 +2,7 @@ import concurrent.futures
 import threading
 import time
 
-from news_manager import NewsManager
+from news_handling.news_manager import NewsManager
 from bot_mvc import BotController
 
 

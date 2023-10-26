@@ -12,14 +12,14 @@ class NewsScraper:
 
     @staticmethod
     def get_bbc_news_source_from_folder():
-        with open("bbc-news.html", "r", encoding="UTF-8") as f:
+        with open("test/bbc-news.html", "r", encoding="UTF-8") as f:
             html_str = f.read()
         page_source = html_str
         return page_source
 
     @staticmethod
     def get_bbc_news_ukraine_source_from_folder():
-        with open("bbc-news-ukraine.html", "r", encoding="utf-8") as f:
+        with open("test/bbc-news-ukraine.html", "r", encoding="utf-8") as f:
             html_str = f.read()
         page_source = html_str
         return page_source
