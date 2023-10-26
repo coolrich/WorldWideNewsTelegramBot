@@ -68,6 +68,12 @@ class Application:
             (self.bot_controller.stop_bot, (self.bot_controller,)),
         )
 
+    def __stop_tasks(self):
+        lock = self.program_state_controller.get_condition()
+        with lock:
+            self.program_state_controller.set_state(False)
+            self.program_state_controller.notify()
+
     def start(self, download_news_delay: int = 120):
         # self.__run_tasks(download_news_delay)
         self.start_thread = threading.Thread(target=self.__run_tasks, args=(download_news_delay,))
@@ -79,12 +85,6 @@ class Application:
         self.stop_thread.join()
         self.start_thread.join()
         # print("End of the stop() method in Application class")
-
-    def __stop_tasks(self):
-        lock = self.program_state_controller.get_condition()
-        with lock:
-            self.program_state_controller.set_state(False)
-            self.program_state_controller.notify()
 
 
 # Test the Application
