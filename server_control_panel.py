@@ -60,8 +60,8 @@ def exit_control_panel():
         bot.stop()
         bot_active = False
     print('Shutting down gracefully...')
+    yield 'Server shutting down...'
     os.kill(os.getpid(), signal.SIGINT)
-    return 'Server shutting down...'
 
 if __name__ == '__main__':
     flask_app.run(debug=True)

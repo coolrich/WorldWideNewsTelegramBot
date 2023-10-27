@@ -8,5 +8,4 @@ myenv
 Новини - BBC News Україна_files
 .gitignore
 
-/__pycache__/application_controller.cpython-310.pyc
 /__pycache__/*
