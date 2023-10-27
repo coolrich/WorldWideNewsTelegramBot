@@ -8,3 +8,4 @@ myenv
 Новини - BBC News Україна_files
 __pycache__
 .gitignore
+/__pycache__/
