@@ -2,14 +2,14 @@ import os
 import signal
 
 from flask import Flask, render_template
-from main import Application
+from main import ApplicationController
 import threading
 
 # Змінна-флаг для вказування на стан бота (активний або призупинений)
 bot_active = False
 
 # Створіть веб-сервер Flask
-bot = Application()
+bot = ApplicationController()
 flask_app = Flask(__name__)
 
 

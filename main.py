@@ -50,7 +50,7 @@ class FunctionExecutor:
             print("End of the execute_functions_periodically() method in FunctionExecutor class")
 
 
-class Application:
+class ApplicationController:
     def __init__(self):
         self.program_state_controller = ProgramStateControllerSingleton()
         self.condition_lock = self.program_state_controller.get_condition()
@@ -89,7 +89,7 @@ class Application:
 
 # Test the Application
 if __name__ == "__main__":
-    app = Application()
+    app = ApplicationController()
     app.start()
     time.sleep(10)
     print("Start program shutdown...")
