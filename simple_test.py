@@ -1,6 +1,6 @@
 import time
 
-from application_controller import ApplicationController
+from controllers.application_controller import ApplicationController
 
 # Test the Application
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import pprint
+import sys
 import time
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -19,10 +20,18 @@ class NewsScraper:
 
     @staticmethod
     def get_bbc_news_ukraine_source_from_folder():
-        with open("test/bbc-news-ukraine.html", "r", encoding="utf-8") as f:
-            html_str = f.read()
-        page_source = html_str
-        return page_source
+        try:
+            with open("test/bbc-news-ukraine.html", "r", encoding="utf-8") as f:
+                html_str = f.read()
+            page_source = html_str
+            return page_source
+        except FileNotFoundError:
+            print("File not found. Make sure the file 'bbc-news-ukraine.html' exists in the 'test' folder.")
+        except UnicodeDecodeError:
+            print("Error decoding the file. Ensure that the file is encoded in UTF-8.")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+        sys.exit()
 
     @staticmethod
     def get_html_source(url):

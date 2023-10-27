@@ -1,8 +1,8 @@
 import threading
 
 from bot_mvc import BotController
-from program_state_controller import ProgramStateControllerSingleton
-from function_executor import FunctionExecutor
+from controllers.program_state_controller import ProgramStateControllerSingleton
+from controllers.function_executor import FunctionExecutor
 from news_handling.news_manager import NewsManager
 
 
