@@ -10,3 +10,4 @@ myenv
 *.pyc
 /__pycache__/
 /__pycache__/*
+/GPT_how_to_create_secure_app

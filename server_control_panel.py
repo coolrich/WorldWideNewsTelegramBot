@@ -4,6 +4,8 @@ import signal
 from flask import Flask, render_template
 from controllers.application_controller import ApplicationController
 
+# TODO: Add authentication with login and password
+
 # Змінна-флаг для вказування на стан бота (активний або призупинений)
 bot_active = False
 
