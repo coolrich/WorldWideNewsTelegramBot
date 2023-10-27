@@ -1,10 +1,9 @@
 import os
 import threading
 from collections import deque
-from typing import Type
 
 import telebot
-from error_handler import ErrorHandler
+from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
 from telebot import types
