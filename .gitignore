@@ -7,5 +7,5 @@ myenv
 .env
 Новини - BBC News Україна_files
 .gitignore
-
+*.pyc
 /__pycache__/*
