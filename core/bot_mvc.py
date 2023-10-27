@@ -12,7 +12,7 @@ from telebot.formatting import escape_markdown
 
 class BotModel:
     def __init__(self, a_news_manager, a_lock):
-        load_dotenv(dotenv_path="./.env")
+        load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager

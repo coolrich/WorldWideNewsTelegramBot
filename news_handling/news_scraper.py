@@ -13,7 +13,7 @@ class NewsScraper:
 
     @staticmethod
     def get_bbc_news_source_from_folder():
-        with open("test/bbc-news.html", "r", encoding="UTF-8") as f:
+        with open("test_sources/bbc-news.html", "r", encoding="UTF-8") as f:
             html_str = f.read()
         page_source = html_str
         return page_source
@@ -21,12 +21,12 @@ class NewsScraper:
     @staticmethod
     def get_bbc_news_ukraine_source_from_folder():
         try:
-            with open("test/bbc-news-ukraine.html", "r", encoding="utf-8") as f:
+            with open("test_sources/bbc-news-ukraine.html", "r", encoding="utf-8") as f:
                 html_str = f.read()
             page_source = html_str
             return page_source
         except FileNotFoundError:
-            print("File not found. Make sure the file 'bbc-news-ukraine.html' exists in the 'test' folder.")
+            print("File not found. Make sure the file 'bbc-news-ukraine.html' exists in the 'test_sources' folder.")
         except UnicodeDecodeError:
             print("Error decoding the file. Ensure that the file is encoded in UTF-8.")
         except Exception as e:
