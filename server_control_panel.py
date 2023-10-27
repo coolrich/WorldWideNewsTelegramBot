@@ -30,17 +30,6 @@ def start_bot():
     return "Bot started!"
 
 
-# Обробник для команди призупинення бота
-# @flask_app.route('/pause_bot')
-# def pause_bot():
-#     global bot_active
-#     if bot_active:
-#         bot.stop()
-#         bot_active = False
-#
-#     return "Bot paused!"
-
-
 # Обробник для команди зупинення бота
 @flask_app.route('/stop_bot')
 def stop_bot():
@@ -61,6 +50,7 @@ def exit_control_panel():
     print('Shutting down gracefully...')
     yield 'Server shutting down...'
     os.kill(os.getpid(), signal.SIGINT)
+
 
 if __name__ == '__main__':
     flask_app.run(debug=True)
