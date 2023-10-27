@@ -2,7 +2,7 @@ import os
 import signal
 
 from flask import Flask, render_template
-from main import ApplicationController
+from application_controller import ApplicationController
 import threading
 
 # Змінна-флаг для вказування на стан бота (активний або призупинений)
