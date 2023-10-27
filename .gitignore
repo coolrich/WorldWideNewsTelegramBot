@@ -6,3 +6,4 @@ get-pip.py
 myenv
 .env
 Новини - BBC News Україна_files
+__pycache__
