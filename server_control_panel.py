@@ -1,14 +1,14 @@
 import os
 import signal
 
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, EqualTo
 from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms.validators import DataRequired
+from flask_bootstrap import Bootstrap
 from controllers.application_controller import ApplicationController
 
-# TODO: Add authorization with login and password
 
 # Змінна-флаг для вказування на стан бота (активний або призупинений)
 bot_active = False
@@ -16,8 +16,8 @@ bot_active = False
 # Створіть веб-сервер Flask
 bot = ApplicationController()
 flask_app = Flask(__name__)
-
 flask_app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure random key
+Bootstrap(flask_app)
 
 # Replace this with a database (e.g., SQLAlchemy) for production use.
 users = [{'username': 'admin', 'password': generate_password_hash('adminpassword')}]
@@ -46,6 +46,7 @@ def login():
 
 
 # Обробник головної сторінки
+
 @flask_app.route('/index')
 def index():
     return render_template('index.html')
