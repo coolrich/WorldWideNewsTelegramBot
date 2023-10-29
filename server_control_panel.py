@@ -1,8 +1,9 @@
 import os
 import signal
+import threading
 import time
 
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request, Response
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -87,7 +88,7 @@ def start_bot():
         bot.start()
         bot_active = True
 
-    return "Bot started!"
+    return render_template('index.html', message="Bot started.")
 
 
 # Обробник для команди зупинення бота
@@ -98,7 +99,8 @@ def stop_bot():
     if bot_active:
         bot.stop()
         bot_active = False
-    return "Bot stopped!"
+
+    return render_template('index.html', message="Bot stopped.")
 
 
 @flask_app.route('/logout')
@@ -108,13 +110,8 @@ def logout_control_panel():
     if bot_active:
         bot.stop()
         bot_active = False
-    # yield "Bot stopped!"
-    time.sleep(2)
     logout_user()
-    return redirect(url_for("login"))
-    # print('Shutting down gracefully...')
-    # yield 'Server shutting down...'
-    # os.kill(os.getpid(), signal.SIGINT)
+    return redirect(url_for('login_control_panel'))
 
 
 if __name__ == '__main__':
