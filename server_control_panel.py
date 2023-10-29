@@ -25,7 +25,7 @@ login_manager = LoginManager()
 login_manager.init_app(flask_app)
 
 # Replace this with a database (e.g., SQLAlchemy) for production use.
-__users = [{'username': 'admin', 'password': generate_password_hash('adminpassword')}]
+__users = [{'username': 'admin', 'password': generate_password_hash('admin')}]
 
 
 class LoginForm(FlaskForm):
@@ -111,7 +111,8 @@ def logout_control_panel():
         bot.stop()
         bot_active = False
     logout_user()
-    return redirect(url_for('login_control_panel'))
+    # return redirect(url_for('login_control_panel'))
+    return render_template("intermediate_logout_page.html")
 
 
 if __name__ == '__main__':
