@@ -63,6 +63,13 @@ class BotModel:
                 'parse_mode': parse_mode
                 }
 
+    def check_news_init(self):
+        world_n_d = self.world_news_deque
+        ua_n_d = self.ua_news_dict
+        if (world_n_d is None) and (ua_n_d is None):
+            return False
+        return True
+
 
 class BotView:
     def __init__(self):
@@ -122,8 +129,12 @@ class BotController:
                                            "нижче:",
                                   reply_markup=self.bot_view.create_markup())
 
+            print("Checking the availability of news...")
+            check_for_news_init = self.bot_model.check_news_init
+            lock.wait_for(check_for_news_init)
             print("Bot manager has been starting...")
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
+            # Wait for the news updating
             polling_thread.start()
             print("Bot polling has been started...")
             self.__block_until_program_finish(lock, psc)
@@ -131,8 +142,7 @@ class BotController:
 
     @staticmethod
     def __block_until_program_finish(lock, psc):
-        while psc.get_state():
-            lock.wait()
+        lock.wait_for(psc.get_state)
 
     @staticmethod
     def start_bot(a_bot_controller: "BotController"):
