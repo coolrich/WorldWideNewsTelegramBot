@@ -1,17 +1,13 @@
-import os
-import signal
-import threading
-import time
-
-from flask import Flask, render_template, redirect, url_for, flash, request, Response
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms.validators import DataRequired
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
-from controllers.application_controller import ApplicationController
-from flask_login import login_required, login_user, UserMixin, logout_user
 from flask_login import LoginManager
+from flask_login import login_required, login_user, UserMixin, logout_user
+from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
+
+from controllers.application_controller import ApplicationController
 
 # Змінна-флаг для вказування на стан бота (активний або призупинений)
 bot_active = False
