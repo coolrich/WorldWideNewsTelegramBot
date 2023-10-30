@@ -17,7 +17,6 @@ class BotModel:
         self.lock = a_lock
         self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
-        # self.markup = None
         self.world_news_deque = None
         self.ua_news_dict = None
         self.world_news_dict = None
