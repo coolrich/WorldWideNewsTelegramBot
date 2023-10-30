@@ -123,7 +123,6 @@ class BotController:
                                   reply_markup=self.bot_view.create_markup())
 
             print("Bot manager has been starting...")
-            # self.bot.polling(timeout=0, long_polling_timeout=1)
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
             polling_thread.start()
             print("Bot polling has been started...")
