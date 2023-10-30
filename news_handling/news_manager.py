@@ -1,8 +1,7 @@
 import threading
 
-from news_scraper import NewsScraper
-from bot_mvc import BotController
-import time
+from news_handling.news_scraper import NewsScraper
+from core.bot_mvc import BotController
 
 
 class NewsManager:

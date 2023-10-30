@@ -1,10 +1,9 @@
 import os
 import threading
 from collections import deque
-from typing import Type
 
 import telebot
-from error_handler import ErrorHandler
+from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
 from telebot import types
@@ -13,12 +12,11 @@ from telebot.formatting import escape_markdown
 
 class BotModel:
     def __init__(self, a_news_manager, a_lock):
-        load_dotenv(dotenv_path="./.env")
+        load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
-        # self.markup = None
         self.world_news_deque = None
         self.ua_news_dict = None
         self.world_news_dict = None

@@ -1,11 +1,14 @@
 /Home - BBC News_files/
-bbc-news.html
-bbc-news-ukraine.html
-get-pip.py
+test_sources/bbc-news.html
+test_sources/bbc-news-ukraine.html
+utils/get-pip.py
 .idea
 myenv
 .env
 Новини - BBC News Україна_files
-__pycache__
-/GPT_how_to_create_secure_app_1
+.gitignore
+*.pyc
+/__pycache__/
+/__pycache__/*
 /GPT_how_to_create_secure_app
+/GPT_how_to_create_secure_app_1
