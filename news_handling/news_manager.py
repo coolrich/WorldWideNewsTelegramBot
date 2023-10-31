@@ -23,7 +23,6 @@ class NewsManager:
                 self.lock.wait(delay)
         self.lock.notify_all()
         print("End of get_world_news")
-            # time.sleep(delay)
 
     def get_ua_news(self, a_bot_controller: BotController, delay: int = 60):
         get_program_state = self.program_state_controller.get_state
@@ -38,4 +37,3 @@ class NewsManager:
                 self.lock.wait(delay)
         self.lock.notify_all()
         print("End of get_ua_news")
-            # time.sleep(delay)
