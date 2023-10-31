@@ -134,7 +134,7 @@ class BotController:
             check_for_news_init = self.bot_model.check_news_init
             # while check_for_news_init():
             while not check_for_news_init():
-                lock.wait_for(check_for_news_init, timeout=10)
+                lock.wait_for(check_for_news_init)
                 lock.notify_all()
             print("Bot manager has been starting...")
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
@@ -146,12 +146,12 @@ class BotController:
 
     @staticmethod
     def __block_until_program_finish(lock, psc):
-        while psc.get_state():
-            lock.wait_for(psc.get_state)
+        while psc.is_program_running():
+            lock.wait_for(lambda: not psc.is_program_running())
 
     @staticmethod
     def start_bot(a_bot_controller: "BotController"):
-        get_program_state = a_bot_controller.program_state_controller.get_state
+        get_program_state = a_bot_controller.program_state_controller.is_program_running
         while get_program_state():
             try:
                 print("Starting bot controller...")
@@ -165,7 +165,7 @@ class BotController:
         lock = a_bot_controller.program_state_controller.get_condition()
         psc = a_bot_controller.program_state_controller
         with lock:
-            while psc.get_state():
+            while psc.is_program_running():
                 print("In lock before wait in stop_bot()")
                 lock.wait()
         a_bot_controller.bot.stop_polling()

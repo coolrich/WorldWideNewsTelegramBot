@@ -42,53 +42,65 @@ class NewsScraper:
         driver.quit()
         return page_source
 
-    @staticmethod
-    def parse_bbc(base_url, html_source):
+    def parse_bbc(self, base_url, html_source):
         base_url = base_url.split('.com')[0] + '.com'
         bs = BeautifulSoup(html_source, 'html5lib')
-        posts = bs.find('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
-        posts_dict = {}
-        for post in posts:
-            heading = post.find('a').find('h3').text
-            p_tag = post.find('p')
-            if p_tag:
-                text = p_tag.get_text()
-            else:
-                continue
-            rel_link = post.find('a')['href']
-            full_url = urljoin(base_url.rstrip('/') + '/', rel_link.lstrip('/'))
-            print("Heading: " + heading + '\n')
-            print("Url: " + full_url + '\n')
-            print("Text: " + text)
-            article_delimiter = len(heading) * '-'
-            print(article_delimiter)
-            posts_dict[heading] = [text, full_url]
-        return posts_dict
-
-    @staticmethod
-    def parse_bbc_ukraine(base_url, html_source):
-        base_url = base_url.split('.com')[0] + '.com'
-        bs = BeautifulSoup(html_source, 'html5lib')
-        section_tags = bs.find('main').find_all('section')
-        posts_dict = {}
-        for section in section_tags:
-            import textwrap
-            h3_tag = section.h3
-            if h3_tag:
-                heading = h3_tag.text.replace('\n', ' ').title() + '\n'
-                print("Заголовок: " + heading)
-
-                href_link = h3_tag.a['href']
-                full_url = urljoin(base_url.rstrip('/') + '/', href_link.lstrip('/'))
+        try:
+            posts = bs.find('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
+            posts_dict = {}
+            for post in posts:
+                heading = post.find('a').find('h3').text
+                p_tag = post.find('p')
+                if p_tag:
+                    text = p_tag.get_text()
+                else:
+                    continue
+                rel_link = post.find('a')['href']
+                full_url = urljoin(base_url.rstrip('/') + '/', rel_link.lstrip('/'))
+                print("Heading: " + heading + '\n')
                 print("Url: " + full_url + '\n')
-
-                text = textwrap.fill(h3_tag.next_sibling.text.replace('\n', ''), 50)
-                print("Текст_статті: " + text)
-
+                print("Text: " + text)
                 article_delimiter = len(heading) * '-'
                 print(article_delimiter)
-
                 posts_dict[heading] = [text, full_url]
+        except Exception as e:
+            print(f"An unexpected error in bbc-parser occurred: {e}")
+            sys.exit()
+        return posts_dict
+
+    def parse_bbc_ukraine(self, base_url, html_source):
+        base_url = base_url.split('.com')[0] + '.com'
+        bs = BeautifulSoup(html_source, 'html5lib')
+        try:
+            section_tags = bs.find('main').find_all('section')
+            print(section_tags[0])
+            # sys.exit()
+            posts_dict = {}
+            import textwrap
+            for section in section_tags:
+                try:
+                    h3_tag = section.h3
+                    if h3_tag:
+                        heading = h3_tag.text.replace('\n', ' ').title() + '\n'
+                        print("Заголовок: " + heading)
+
+                        href_link = h3_tag.a['href']
+                        full_url = urljoin(base_url.rstrip('/') + '/', href_link.lstrip('/'))
+                        print("Url: " + full_url + '\n')
+
+                        text = textwrap.fill(h3_tag.next_sibling.text.replace('\n', ''), 50)
+                        print("Текст_статті: " + text)
+
+                        article_delimiter = len(heading) * '-'
+                        print(article_delimiter)
+
+                        posts_dict[heading] = [text, full_url]
+                except AttributeError as e:
+                    print(f"AttributeError in bbc parser: {e}")
+                    continue
+        except Exception as e:
+            print(f"An unexpected error in bbc-parser occurred: {e}")
+            sys.exit()
         return posts_dict
 
     def get_ua_news(self):
@@ -114,9 +126,9 @@ class NewsScraper:
 
 if __name__ == '__main__':
     ns = NewsScraper()
-    world_news = ns.get_world_news()
-    # ua_news = ns.get_ua_news()
-    print("World news:")
-    pprint.pprint(f"Count of world news: {len(world_news)}")
+    # world_news = ns.get_world_news()
+    ua_news = ns.get_ua_news()
+    # print("World news:")
+    # pprint.pprint(f"Count of world news: {len(world_news)}")
     print("UA news:")
-    # pprint.pprint(f"Count of UA news: {len(ua_news)}")
+    pprint.pprint(f"Count of UA news: {len(ua_news)}")

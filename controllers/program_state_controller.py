@@ -15,7 +15,7 @@ class ProgramStateControllerSingleton:
             self.condition = threading.Condition()
             self.rlock = threading.RLock()
 
-    def get_state(self):
+    def is_program_running(self):
         return self.__is_running
 
     def set_state(self, state):
