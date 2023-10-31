@@ -13,6 +13,7 @@ class ProgramStateControllerSingleton:
         if not hasattr(self, "__is_running"):
             self.__is_running = True
             self.condition = threading.Condition()
+            self.rlock = threading.RLock()
 
     def get_state(self):
         return self.__is_running

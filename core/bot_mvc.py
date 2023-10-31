@@ -64,9 +64,10 @@ class BotModel:
                 }
 
     def check_news_init(self):
-        world_n_d = self.world_news_deque
+        world_n_d = self.world_news_dict
         ua_n_d = self.ua_news_dict
-        if (world_n_d is None) and (ua_n_d is None):
+        print("World news dict: ", world_n_d, "\n", "UA news dict: ", ua_n_d, "\n")
+        if (world_n_d is None) or (ua_n_d is None):
             return False
         return True
 
@@ -100,7 +101,7 @@ class BotController:
     def __init__(self, a_news_manager, a_lock, program_state_controller):
         self.bot_model = BotModel(a_news_manager, a_lock)
         self.bot_view = BotView()
-        self.bot = telebot.TeleBot(self.bot_model.token)
+        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=ErrorHandler)
         self.program_state_controller = program_state_controller
 
     def start(self):
@@ -131,7 +132,10 @@ class BotController:
 
             print("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
-            lock.wait_for(check_for_news_init)
+            # while check_for_news_init():
+            while not check_for_news_init():
+                lock.wait_for(check_for_news_init, timeout=10)
+                lock.notify_all()
             print("Bot manager has been starting...")
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
             # Wait for the news updating
@@ -142,7 +146,8 @@ class BotController:
 
     @staticmethod
     def __block_until_program_finish(lock, psc):
-        lock.wait_for(psc.get_state)
+        while psc.get_state():
+            lock.wait_for(psc.get_state)
 
     @staticmethod
     def start_bot(a_bot_controller: "BotController"):
