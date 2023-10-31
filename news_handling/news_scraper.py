@@ -46,7 +46,7 @@ class NewsScraper:
     def parse_bbc(base_url, html_source):
         base_url = base_url.split('.com')[0] + '.com'
         bs = BeautifulSoup(html_source, 'html5lib')
-        posts = bs.find_all('div', {'class': 'gs-c-promo-body'})
+        posts = bs.find_all('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
         posts_dict = {}
         for post in posts:
             heading = post.find('a').find('h3').text
