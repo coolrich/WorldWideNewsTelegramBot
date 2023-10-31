@@ -22,8 +22,8 @@ class NewsManager:
                 print("-" * 50)
                 print(f"Sleeping in get_world_news on {delay}...")
                 self.lock.notify_all()
-                while self.program_state_controller.is_program_running():
-                    self.lock.wait(delay)
+                t0 = time.time()
+                self.waiting_for_finish_the_program_or_timeout(delay, t0)
         print("End of get_world_news")
 
     def get_ua_news(self, a_bot_controller: BotController, delay: int = 60):
@@ -37,6 +37,10 @@ class NewsManager:
                 print("-" * 50)
                 print(f"Sleeping in get_ua_news on {delay}...")
                 self.lock.notify_all()
-                while self.program_state_controller.is_program_running():
-                    self.lock.wait(delay)
+                t0 = time.time()
+                self.waiting_for_finish_the_program_or_timeout(delay, t0)
         print("End of get_ua_news")
+
+    def waiting_for_finish_the_program_or_timeout(self, delay, t0):
+        while self.program_state_controller.is_program_running() and time.time() - t0 < delay:
+            self.lock.wait(delay)
