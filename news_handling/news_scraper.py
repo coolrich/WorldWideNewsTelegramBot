@@ -46,7 +46,7 @@ class NewsScraper:
     def parse_bbc(base_url, html_source):
         base_url = base_url.split('.com')[0] + '.com'
         bs = BeautifulSoup(html_source, 'html5lib')
-        posts = bs.find_all('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
+        posts = bs.find('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
         posts_dict = {}
         for post in posts:
             heading = post.find('a').find('h3').text
@@ -114,11 +114,9 @@ class NewsScraper:
 
 if __name__ == '__main__':
     ns = NewsScraper()
+    world_news = ns.get_world_news()
+    # ua_news = ns.get_ua_news()
     print("World news:")
-    # pprint.pprint(ns.get_world_news())
-    pprint.pprint(f"Count of world news: {len(ns.get_test_world_news())}")
-    pprint.pprint(ns.get_test_world_news())
+    pprint.pprint(f"Count of world news: {len(world_news)}")
     print("UA news:")
-    # pprint.pprint(ns.get_ua_news())
-    pprint.pprint(f"Count of UA news: {len(ns.get_test_ua_news())}")
-    pprint.pprint(ns.get_test_ua_news())
+    # pprint.pprint(f"Count of UA news: {len(ua_news)}")
