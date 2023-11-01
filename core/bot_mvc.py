@@ -67,7 +67,7 @@ class BotModel:
     def check_news_init(self):
         world_n_d = self.world_news_dict
         ua_n_d = self.ua_news_dict
-        self.l("World news dict: ", world_n_d, "\n", "UA news dict: ", ua_n_d, "\n")
+        self.logger.debug("World news dict: ", world_n_d, "\n", "UA news dict: ", ua_n_d, "\n")
         if (world_n_d is None) or (ua_n_d is None):
             return False
         return True
