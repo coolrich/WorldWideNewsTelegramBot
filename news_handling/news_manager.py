@@ -7,7 +7,7 @@ from core.bot_mvc import BotController
 
 class NewsManager:
     def __init__(self, condition_lock: threading.Condition, program_state_controller, logger):
-        self.scraper = NewsScraper()
+        self.scraper = NewsScraper(logger)
         self.lock = condition_lock
         self.program_state_controller = program_state_controller
         self.logger = logger
