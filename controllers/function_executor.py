@@ -13,7 +13,7 @@ class FunctionExecutor:
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = []
             for func, args in functions_with_args:
-                self.logger.debug("function:", func, "args:", args)
+                self.logger.debug(f"function: {func}, args: {args}")
                 if args is not None:
                     futures.append(executor.submit(func, *args))
                 else:

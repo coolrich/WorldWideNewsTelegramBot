@@ -73,8 +73,6 @@ class NewsScraper:
         bs = BeautifulSoup(html_source, 'html5lib')
         try:
             section_tags = bs.find('main').find_all('section')
-            print(section_tags[0])
-            # sys.exit()
             posts_dict = {}
             import textwrap
             for section in section_tags:
