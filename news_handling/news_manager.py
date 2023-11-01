@@ -3,7 +3,7 @@ import time
 
 from news_handling.news_scraper import NewsScraper
 from core.bot_mvc import BotController
-
+from news_handling.news_storage import NewsStorage
 
 class NewsManager:
     def __init__(self, condition_lock: threading.Condition, program_state_controller, logger):
@@ -11,6 +11,7 @@ class NewsManager:
         self.lock = condition_lock
         self.program_state_controller = program_state_controller
         self.logger = logger
+        self.news_storage = NewsStorage(logger)
 
     def get_world_news(self, a_bot_controller: BotController, delay: int = 60):
         get_program_state = self.program_state_controller.is_program_running

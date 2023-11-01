@@ -1,11 +1,13 @@
 import json
+import logging
 import time
 
 
 class NewsStorage:
-    def __init__(self, news_file_path="news.json", timestamp_file_path="timestamp.txt"):
+    def __init__(self, logger: logging.Logger, news_file_path="news.json", timestamp_file_path="timestamp.txt"):
         self.news_file_path = news_file_path
         self.timestamp_file_path = timestamp_file_path
+        self.logger = logger
 
     def save_news_and_timestamp_in_seconds(self, news_data: dict):
         with open(self.news_file_path, "w") as json_file:
@@ -22,7 +24,7 @@ class NewsStorage:
                 news_data = json.load(json_file)
             return news_data
         except (FileNotFoundError, json.JSONDecodeError):
-            # TODO: add logging
+            self.logger.error("News file not found")
             return []
 
     def get_last_download_timestamp_in_seconds(self):
@@ -31,5 +33,5 @@ class NewsStorage:
                 timestamp = int(timestamp_file.read())
             return timestamp
         except (FileNotFoundError, ValueError):
-            # TODO: add logging
+            self.logger.error("Timestamp file not found")
             return None
