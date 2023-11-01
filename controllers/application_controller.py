@@ -22,7 +22,8 @@ class ApplicationController:
         self.condition_lock = self.program_state_controller.get_condition()
         self.function_executor = FunctionExecutor(max_workers=3, logger=self.logger)
         self.news_manager = NewsManager(self.condition_lock, self.program_state_controller, self.logger)
-        self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller)
+        self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller,
+                                            self.logger)
         self.start_thread = None
         self.stop_thread = None
         self.logger.debug("End of the __init__() method in ApplicationController class")

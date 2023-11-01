@@ -11,7 +11,7 @@ from telebot.formatting import escape_markdown
 
 
 class BotModel:
-    def __init__(self, a_news_manager, a_lock):
+    def __init__(self, a_news_manager, a_lock, logger):
         load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
@@ -20,6 +20,7 @@ class BotModel:
         self.world_news_deque = None
         self.ua_news_dict = None
         self.world_news_dict = None
+        self.logger = logger
 
     def get_news_deqs(self, a_chat_id):
         if a_chat_id not in self.user_news_deqs_dict:
@@ -66,7 +67,7 @@ class BotModel:
     def check_news_init(self):
         world_n_d = self.world_news_dict
         ua_n_d = self.ua_news_dict
-        print("World news dict: ", world_n_d, "\n", "UA news dict: ", ua_n_d, "\n")
+        self.l("World news dict: ", world_n_d, "\n", "UA news dict: ", ua_n_d, "\n")
         if (world_n_d is None) or (ua_n_d is None):
             return False
         return True
@@ -99,21 +100,26 @@ class BotView:
 
 class BotController:
     class MyBotPollingException(telebot.ExceptionHandler):
+        def __init__(self, logger):
+            self.logger = logger
+
         def handle(self, exception):
-            print(exception)
+            self.logger.error(exception)
             return True
 
-    def __init__(self, a_news_manager, a_lock, program_state_controller):
-        self.bot_model = BotModel(a_news_manager, a_lock)
+    def __init__(self, a_news_manager, a_lock, program_state_controller, logger):
+        self.logger = logger
+        self.bot_model = BotModel(a_news_manager, a_lock, self.logger)
         self.bot_view = BotView()
-        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException())
+        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException(
+            self.logger))
         self.program_state_controller = program_state_controller
 
     def start(self):
         lock = self.bot_model.lock
         psc = self.program_state_controller
         with lock:
-            print("In start")
+            self.logger.debug("In start")
 
             @self.bot.message_handler(commands=['start', 'help'])
             def send_welcome(message):
@@ -135,19 +141,17 @@ class BotController:
                                            "нижче:",
                                   reply_markup=self.bot_view.create_markup())
 
-            print("Checking the availability of news...")
+            self.logger.info("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
             # while check_for_news_init():
             while not check_for_news_init():
                 lock.wait_for(check_for_news_init)
                 lock.notify_all()
-            print("Bot manager has been starting...")
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
-            # Wait for the news updating
             polling_thread.start()
-            print("Bot polling has been started...")
+            self.logger.info("Bot polling has been started...")
             self.__block_until_program_finish(lock, psc)
-        print("End of the start() method in BotController class")
+        self.logger.debug("End of the start() method in BotController class")
 
     @staticmethod
     def __block_until_program_finish(lock, psc):
@@ -159,10 +163,10 @@ class BotController:
         get_program_state = a_bot_controller.program_state_controller.is_program_running
         while get_program_state():
             try:
-                print("Starting bot controller...")
+                a_bot_controller.logger.info("Starting bot controller...")
                 a_bot_controller.start()
             except ReadTimeout as rt:
-                print("In ReadTimeout Exception handler of start_bot_controller() static method")
+                a_bot_controller.logger.error("In ReadTimeout Exception handler of start_bot_controller() static method")
                 ErrorHandler.handle_read_timeout_error(rt)
 
     @staticmethod
@@ -171,7 +175,7 @@ class BotController:
         psc = a_bot_controller.program_state_controller
         with lock:
             while psc.is_program_running():
-                print("In lock before wait in stop_bot()")
+                a_bot_controller.logger.debug("In lock before wait in stop_bot()")
                 lock.wait()
         a_bot_controller.bot.stop_polling()
-        print("Bot stopped")
+        a_bot_controller.logger.info("Bot stopped")
