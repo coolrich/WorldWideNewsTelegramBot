@@ -4,15 +4,23 @@ from core.bot_mvc import BotController
 from controllers.program_state_controller import ProgramStateControllerSingleton
 from controllers.function_executor import FunctionExecutor
 from news_handling.news_manager import NewsManager
-
+import logging
 
 class ApplicationController:
     def __init__(self):
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.StreamHandler(),
+            ]
+        )
+        self.logger = logging.getLogger(__name__)
         self.program_state_controller = ProgramStateControllerSingleton()
         self.condition_lock = self.program_state_controller.get_condition()
+        self.function_executor = FunctionExecutor(max_workers=3, logger=self.logger)
         self.news_manager = NewsManager(self.condition_lock, self.program_state_controller)
         self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller)
-        self.function_executor = FunctionExecutor(3)
         self.start_thread = None
         self.stop_thread = None
 
