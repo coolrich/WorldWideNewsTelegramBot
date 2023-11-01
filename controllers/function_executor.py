@@ -3,8 +3,10 @@ import concurrent.futures
 
 class FunctionExecutor:
     def __init__(self, max_workers, logger):
+        logger.debug("Start of the FunctionExecutor initialization")
         self.max_workers = max_workers
         self.logger = logger
+        logger.debug("End of the FunctionExecutor initialization")
 
     def execute_functions_periodically(self, *functions_with_args):
         self.logger.debug("Start of the execute_functions_periodically() method in FunctionExecutor class")
