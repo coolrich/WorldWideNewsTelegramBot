@@ -98,10 +98,15 @@ class BotView:
 
 
 class BotController:
+    class MyBotPollingException(telebot.ExceptionHandler):
+        def handle(self, exception):
+            print(exception)
+            return True
+
     def __init__(self, a_news_manager, a_lock, program_state_controller):
         self.bot_model = BotModel(a_news_manager, a_lock)
         self.bot_view = BotView()
-        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=ErrorHandler)
+        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException())
         self.program_state_controller = program_state_controller
 
     def start(self):
