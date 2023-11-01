@@ -167,7 +167,7 @@ class BotController:
                 a_bot_controller.start()
             except ReadTimeout as rt:
                 a_bot_controller.logger.error("In ReadTimeout Exception handler of start_bot_controller() static method")
-                ErrorHandler.handle_read_timeout_error(rt)
+                ErrorHandler.handle_read_timeout_error(rt, a_bot_controller.logger)
 
     @staticmethod
     def stop_bot(a_bot_controller: "BotController"):
