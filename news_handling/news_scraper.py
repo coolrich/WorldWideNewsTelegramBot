@@ -1,5 +1,6 @@
 import textwrap
 from urllib.parse import urljoin
+import logging
 
 from bs4 import BeautifulSoup
 
@@ -7,9 +8,9 @@ from news_handling.news_scraper_interface import NewsScraperInterface
 
 
 class UANewsScraper(NewsScraperInterface):
-    def __init__(self, a_logger, ua_url=r"https://www.bbc.com/ukrainian"):
-        super().__init__(a_logger)
-        self.ua_url = ua_url
+    def __init__(self, a_logger: logging.Logger, address: str = r"https://www.bbc.com/ukrainian"):
+        super().__init__(a_logger, address)
+        self.address = address
 
     def _parse_news(self, base_url, html_source):
         self.logger.debug("Start of parse_bbc_ukraine")
@@ -38,22 +39,12 @@ class UANewsScraper(NewsScraperInterface):
         self.logger.debug("End of parse_bbc_ukraine")
         return posts_dict
 
-    def get_news(self):
-        bbc_page = self.get_html_source(self.ua_url)
-        news_dict = self._parse_news(self.ua_url, bbc_page)
-        return news_dict
-
-    def get_test_news(self):
-        bbc_page = self._get_html_source_from_folder("test_sources/bbc-news-ukraine.html")
-        news_dict = self._parse_news(self.ua_url, bbc_page)
-        return news_dict
-
 
 class WorldNewsScraper(NewsScraperInterface):
-    def __init__(self, a_logger, world_url=r"https://www.bbc.com/news"):
-        super().__init__(a_logger)
-        self.world_url = world_url
-        self.logger = a_logger
+    def __init__(self, a_logger: logging.Logger, an_address: str = r"https://www.bbc.com/news"):
+        super().__init__(a_logger, an_address)
+        self.address = an_address
+        self.logger = logger
 
     def _parse_news(self, base_url, html_source):
         self.logger.debug("Start of parse_bbc")
@@ -85,20 +76,8 @@ class WorldNewsScraper(NewsScraperInterface):
         self.logger.debug("End of parse_bbc")
         return posts_dict
 
-    def get_news(self):
-        bbc_page = self.get_html_source(self.world_url)
-        news_dict = self._parse_news(self.world_url, bbc_page)
-        return news_dict
-
-    def get_test_news(self):
-        bbc_page = self._get_html_source_from_folder("test_sources/bbc-news.html")
-        news_dict = self._parse_news(self.world_url, bbc_page)
-        return news_dict
-
 
 if __name__ == '__main__':
-    import logging
-
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -109,10 +88,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.debug("Start of the __main__() method in NewsScraper class")
     ns = UANewsScraper(a_logger=logger)
-    # world_news = ns.get_world_news()
     ua_news = ns.get_news()
-    # logger.debug("World news:")
-    # logger.debug(f"Count of world news: {len(world_news)}")
     logger.debug("UA news:")
     logger.debug(f"Count of UA news: {len(ua_news)}")
     logger.debug("End of the __main__() method in NewsScraper class")
