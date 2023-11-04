@@ -32,7 +32,7 @@ class UANewsScraper(NewsScraperInterface):
 class WorldNewsScraper(NewsScraperInterface):
     def __init__(self, a_logger: logging.Logger, an_address: str = r"https://www.bbc.com/news"):
         super().__init__(a_logger, an_address)
-        self.logger = logger
+        self.logger = a_logger
 
     def _parser(self, base_url, bs):
         posts_dict = {}

@@ -31,8 +31,7 @@ class ApplicationController:
     def __run_tasks(self, download_news_delay):
         self.logger.debug("Start of the __run_tasks() method in ApplicationController class")
         self.function_executor.execute_functions_periodically(
-            (self.news_manager.get_ua_news, (self.bot_controller, download_news_delay,)),
-            (self.news_manager.get_world_news, (self.bot_controller, download_news_delay,)),
+            (self.news_manager.get_news, (self.bot_controller, download_news_delay,)),
             (self.bot_controller.start_bot, (self.bot_controller,)),
             (self.bot_controller.stop_bot, (self.bot_controller,)),
         )

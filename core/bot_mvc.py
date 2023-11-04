@@ -1,32 +1,43 @@
 import os
 import threading
 from collections import deque
+from enum import Enum
 
 import telebot
+
+from countries.countries import Countries
 from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
 from telebot import types
 from telebot.formatting import escape_markdown
 
-
+# Create a User class that holds the user's data: chat_id, news_dicts_dict,
+class User:
+    def __init__(self, chat_id):
+        self.chat_id = chat_id
 class BotModel:
-    def __init__(self, a_news_manager, a_lock, logger):
+    def __init__(self, a_news_manager, a_lock, logger, user: User):
         load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager
         self.user_news_deqs_dict = {}
         self.world_news_deque = None
-        self.ua_news_dict = None
-        self.world_news_dict = None
+        self.countries = Countries
+        self.news_dicts_dict = {country: None for country in self.countries}
+        # self.ua_news_dict = self.news_dicts_dict[self.countries.UA]
+        # self.world_news_dict = self.news_dicts_dict[self.countries.WORLD]
         self.logger = logger
+        self.user = user
 
-    def get_news_deqs(self, a_chat_id):
+    def create_news_deqs_dict(self, a_chat_id):
         if a_chat_id not in self.user_news_deqs_dict:
-            self.user_news_deqs_dict[a_chat_id] = {
-                'en': deque(self.world_news_dict),
-                'ua': deque(self.ua_news_dict)}
+            for country in self.countries:
+                self.user_news_deqs_dict[a_chat_id] = {
+                    country: deque(self.news_dicts_dict[country])
+                }
+
         return self.user_news_deqs_dict[a_chat_id]
 
     def get_data_from_message(self, message: types.Message):
@@ -45,19 +56,24 @@ class BotModel:
         parse_mode = 'MarkdownV2'
         chat_id = message.chat.id
         message_text = message.text
-        news_lang = 'ua' if message_text == 'Новини України' else 'en'
-        news_deque = self.get_news_deqs(chat_id)[news_lang]
+        if message_text == 'Новини України':
+            news_lang = self.countries.UA
+        else:
+            news_lang = self.countries.WORLD
+        news_deque = self.create_news_deqs_dict(chat_id)[news_lang]
         if not news_deque:
-            self.user_news_deqs_dict[chat_id][news_lang] = (
-                deque(self.ua_news_dict)) if news_lang == 'ua' else \
-                (deque(self.world_news_dict))
+            # self.user_news_deqs_dict[chat_id][news_lang] = (
+            #     deque(self.ua_news_dict)) if news_lang == self.countries.UA else \
+            #     (deque(self.world_news_dict))
+            self.user_news_deqs_dict[chat_id][news_lang] = deque(self.news_dicts_dict[news_lang])
             return {'chat_id': chat_id,
                     'post': f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
                     'parse_mode': parse_mode
                     }
 
         title = news_deque[0] if news_deque else None
-        news_dict = self.ua_news_dict if news_lang == 'ua' else self.world_news_dict
+        # news_dict = self.ua_news_dict if news_lang == self.countries.UA else self.world_news_dict
+        news_dict = self.news_dicts_dict[news_lang]
         post = BotView.get_news_info(news_dict, news_deque, title)
         return {'chat_id': chat_id,
                 'post': post,
@@ -65,12 +81,13 @@ class BotModel:
                 }
 
     def check_news_init(self):
-        world_n_d = self.world_news_dict
-        ua_n_d = self.ua_news_dict
-        self.logger.debug("World news dict: ", world_n_d, "\n", "UA news dict: ", ua_n_d, "\n")
-        if (world_n_d is None) or (ua_n_d is None):
-            return False
-        return True
+        self.logger.debug("In check_news_init")
+        # Check if the news dicts values are not None
+        for key in self.news_dicts_dict.keys():
+            self.logger.debug(f"self.news_dicts_dict[key]")
+        self.logger.debug("End of check_news_init")
+        #     return False
+        # return True
 
 
 class BotView:

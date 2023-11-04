@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-
+from countries.countries import Countries
 
 class NewsScraperInterface(ABC):
-    def __init__(self, a_logger: logging.Logger, address: str):
+    def __init__(self, a_logger: logging.Logger, address: str, country: Countries):
         self._address = address
         self.logger = a_logger
 
