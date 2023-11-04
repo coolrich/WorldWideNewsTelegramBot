@@ -4,7 +4,7 @@ import time
 
 
 class NewsStorage:
-    def __init__(self, logger: logging.Logger, news_file_path="news.json", timestamp_file_path="timestamp.txt"):
+    def __init__(self, logger: logging.Logger, news_file_path, timestamp_file_path):
         self.news_file_path = news_file_path
         self.timestamp_file_path = timestamp_file_path
         self.logger = logger
