@@ -1,63 +1,76 @@
 import logging
 import time
 from abc import ABC, abstractmethod
+from typing import List, Any
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from countries.countries import Countries
+from news_handling.loader_interface import LoaderInterface
+from news_handling.news import News
 
-class NewsScraperInterface(ABC):
+
+class NewsScraperInterface(ABC, LoaderInterface):
     def __init__(self, a_logger: logging.Logger, address: str, country: Countries):
-        self._address = address
-        self.logger = a_logger
+        self.__address = address
+        self.__logger = a_logger
+        self.__country = country
 
     # Create properties for address
     @property
     def address(self):
-        return self._address
+        return self.__address
+
+    # Create properties for country
+    @property
+    def country(self):
+        return self.__country
 
     def __get_html_source(self, url):
-        self.logger.debug("Start of __get_html_source")
+        self.__logger.debug("Start of __get_html_source")
         time.sleep(3)
         driver = webdriver.Chrome()
         driver.get(url)
         page_source = driver.execute_script('return document.documentElement.outerHTML')
         driver.quit()
-        self.logger.debug("End of __get_html_source")
+        self.__logger.debug("End of __get_html_source")
         return page_source
 
     def __get_html_source_from_folder(self, absolute_file_path):
-        self.logger.debug("Start of __get_html_source_from_folder")
+        self.__logger.debug("Start of __get_html_source_from_folder")
         with open(absolute_file_path, "r", encoding="UTF-8") as f:
             html_str = f.read()
         page_source = html_str
-        self.logger.debug(f"End of __get_html_source_from_folder: {absolute_file_path}")
+        self.__logger.debug(f"End of __get_html_source_from_folder: {absolute_file_path}")
         return page_source
 
     # add hints to method
-    def _parse_news(self, base_url, html_source):
-        self.logger.debug(f"Start of parsing {html_source}")
+    def __parse_news(self, base_url, html_source) -> List[News]:
+        self.__logger.debug(f"Start of parsing {html_source}")
         base_url = base_url.split('.com')[0] + '.com'
         bs = BeautifulSoup(html_source, 'html5lib')
         try:
-            posts_dict = self._parser(base_url, bs)
-            return posts_dict
+            news_list: list[News] = self._parser(base_url, bs)
+            return news_list
         except Exception as e:
-            self.logger.error(f"An unexpected error when parsing {base_url}: {e}")
-        self.logger.debug(f"End of parsing {html_source}")
-        return None
+            self.__logger.error(f"An unexpected error when parsing {base_url}: {e}")
+        self.__logger.debug(f"End of parsing {html_source}")
+        return []
 
     @abstractmethod
-    def _parser(self, base_url: str, bs: BeautifulSoup) -> dict:
+    def _parser(self, base_url: str, bs: BeautifulSoup) -> List[News]:
         pass
 
-    def load_news(self):
-        # check if self.address is URL use get_html_source else use get_html_source_from_folder
+    def load_news(self) -> (Countries, List[News]):
+        """
+        Load news from a specified address.
+
+        Returns:
+            A tuple containing the Countries object and a list of News objects.
+        """
         if self.address.startswith("http"):
-            bbc_page = self.__get_html_source(self.address)
+            page = self.__get_html_source(self.address)
         else:
-            bbc_page = self.__get_html_source_from_folder(self.address)
-        news_dict = self._parse_news(self.address, bbc_page)
-        return news_dict
-
-
+            page = self.__get_html_source_from_folder(self.address)
+        news_list = self.__parse_news(self.address, page)
+        return self.country, news_list

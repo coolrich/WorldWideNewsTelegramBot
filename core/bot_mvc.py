@@ -144,7 +144,7 @@ class BotController:
                                   reply_markup=self.bot_view.create_markup())
 
             @self.bot.message_handler(
-                func=lambda message: message.text in ['Новини України', 'Новини Світу'])
+                func=lambda message: message.__text in ['Новини України', 'Новини Світу'])
             def send_news(message):
                 data = self.bot_model.get_data_from_message(message)
                 self.bot.send_message(chat_id=data['chat_id'],

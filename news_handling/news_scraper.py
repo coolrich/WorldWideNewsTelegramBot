@@ -1,45 +1,51 @@
 import textwrap
+import time
 from urllib.parse import urljoin
 import logging
+
+from countries.countries import Countries
+from news_handling.news import News
 from news_handling.news_scraper_interface import NewsScraperInterface
 
 
 class UANewsScraper(NewsScraperInterface):
     def __init__(self, a_logger: logging.Logger, an_address: str = r"https://www.bbc.com/ukrainian"):
-        super().__init__(a_logger, an_address)
+        super().__init__(a_logger, an_address, Countries.UA)
+        self.logger = a_logger
 
     def _parser(self, base_url, bs):
-        posts_dict = {}
+        news_list = []
         section_tags = bs.find('main').find_all('section')
         for section in section_tags:
             try:
                 h3_tag = section.h3
                 if h3_tag:
-                    heading = h3_tag.text.replace('\n', ' ').title()
+                    heading = h3_tag.__text.replace('\n', ' ').__title()
                     href_link = h3_tag.a['href']
                     full_url = urljoin(base_url.rstrip('/') + '/', href_link.lstrip('/'))
-                    text = textwrap.fill(h3_tag.next_sibling.text.replace('\n', ''), 50)
+                    text = textwrap.fill(h3_tag.next_sibling.__text.replace('\n', ''), 50)
                     self.logger.debug(f"Heading: {heading}")
                     self.logger.debug(f"Url: {full_url}")
                     self.logger.debug(f"Text: {text}\n")
-                    posts_dict[heading] = [text, full_url]
+                    news_list.append(News(heading, text, full_url, time.time()))
             except AttributeError as e:
                 self.logger.error(f"AttributeError in bbc-ukraine parser: {e}")
                 continue
-        return posts_dict
+        self.logger.debug("End of parse_bbc_ukraine")
+        return news_list
 
 
 class WorldNewsScraper(NewsScraperInterface):
     def __init__(self, a_logger: logging.Logger, an_address: str = r"https://www.bbc.com/news"):
-        super().__init__(a_logger, an_address)
+        super().__init__(a_logger, an_address, Countries.WORLD)
         self.logger = a_logger
 
     def _parser(self, base_url, bs):
-        posts_dict = {}
+        news_list = []
         posts = bs.find('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
         for post in posts:
             try:
-                heading = post.find('a').find('h3').text
+                heading = post.find('a').find('h3').__text
                 p_tag = post.find('p')
                 if p_tag:
                     text = p_tag.get_text()
@@ -50,12 +56,12 @@ class WorldNewsScraper(NewsScraperInterface):
                 self.logger.debug(f"Heading: {heading}")
                 self.logger.debug(f"Url: {full_url}")
                 self.logger.debug(f"Text: {text}")
-                posts_dict[heading] = [text, full_url]
+                news_list.append(News(heading, text, full_url, time.time()))
             except AttributeError as e:
                 self.logger.error(f"AttributeError in bbc parser: {e}")
                 continue
         self.logger.debug("End of parse_bbc")
-        return posts_dict
+        return news_list
 
 
 if __name__ == '__main__':

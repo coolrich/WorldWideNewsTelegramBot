@@ -1,24 +1,29 @@
 import json
 import logging
 import time
+from typing import List
+
+from countries.countries import Countries
+from news_handling.loader_interface import LoaderInterface
+from news_handling.news import News
 
 
-class NewsLoader:
+class NewsFileLoader(LoaderInterface):
     def __init__(self, logger: logging.Logger, news_file_path, timestamp_file_path):
         self.news_file_path = news_file_path
         self.timestamp_file_path = timestamp_file_path
         self.logger = logger
 
-    def save_news_and_timestamp_in_seconds(self, news_data: dict):
+    def save_news_and_timestamp_in_seconds(self, country: Countries, news_list: List[News]):
         with open(self.news_file_path, "w") as json_file:
-            json.dump(news_data, json_file)
+            json.dump({country: news_list}, json_file)
 
         # Save the timestamp to a separate file
         timestamp = int(time.time())  # Current Unix timestamp
         with open(self.timestamp_file_path, "w") as timestamp_file:
             timestamp_file.write(str(timestamp))
 
-    def load_news(self):
+    def load_news(self) -> (Countries, List[News]):
         try:
             with open(self.news_file_path, "r") as json_file:
                 news_data = json.load(json_file)
