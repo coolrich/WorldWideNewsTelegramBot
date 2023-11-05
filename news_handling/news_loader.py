@@ -3,7 +3,7 @@ import logging
 import time
 
 
-class NewsStorage:
+class NewsLoader:
     def __init__(self, logger: logging.Logger, news_file_path, timestamp_file_path):
         self.news_file_path = news_file_path
         self.timestamp_file_path = timestamp_file_path
