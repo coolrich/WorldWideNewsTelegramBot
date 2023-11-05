@@ -1,4 +1,3 @@
-# TODO: Create a loader interface for loading news from different sources.
 from typing import List
 
 from countries.countries import Countries
