@@ -1,10 +1,10 @@
+import json
 import threading
 import time
 from enum import Enum
 
 from news_handling.news_scraper import UANewsScraper, WorldNewsScraper
 from core.bot_mvc import BotController
-from news_handling.news_loader import NewsFileLoader
 from countries.countries import Countries
 
 
@@ -44,10 +44,10 @@ class NewsManager:
             for scraper in self.__scrapers:
                 with self.__lock:
                     self.__logger.debug("In task get_world_news")
-                    # If there are no files world_news.json and world_news_timestamp.txt, get the world news and
-                    # timestamp from the scraper and store them in world_news.json and world_news_timestamp.json
-                    # respectively.
                     country, news_list = scraper.load_news()
+                    # If there is no file f"{country}-news.json", then create it.
+                    #
+                    filename = f"{country}-news.json"
 
                     # Else, get world news from the storage.
                     # Check if the difference between current time and world_news_timestamp.json is more than "delay"
@@ -66,3 +66,13 @@ class NewsManager:
         t0 = time.time()
         while self.__program_state_controller.is_program_running() and time.time() - t0 < delay:
             self.__lock.wait(delay)
+
+    @staticmethod
+    def save_to_json(filename, news_list):
+        with open(filename, "w") as file:
+            json.dump(news_list, file)
+
+    @staticmethod
+    def load_from_json(filename):
+        with open(filename, "r") as file:
+            return json.load(file)
