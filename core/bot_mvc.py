@@ -35,7 +35,7 @@ class User:
             articles_list.append(news_article)
             return news_article
         else:
-            self.news_articles_dicts[country_code] = [RuntimeNewsStorage().get_news(country_code)]
+            self.news_articles_dicts[country_code] = RuntimeNewsStorage().get_news(country_code)
         return None
 
 
