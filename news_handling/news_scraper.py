@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 import logging
 
 from country_codes.country_codes import CountryCodes
-from news_handling.newsarticle import NewsArticle
+from news_handling.news_article import NewsArticle
 from news_handling.news_scraper_interface import NewsScraperInterface
 
 

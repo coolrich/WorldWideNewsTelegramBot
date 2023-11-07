@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from country_codes.country_codes import CountryCodes
 from news_handling.loader_interface import LoaderInterface
-from news_handling.newsarticle import NewsArticle
+from news_handling.news_article import NewsArticle
 
 
 class NewsScraperInterface(ABC, LoaderInterface):
@@ -73,4 +73,4 @@ class NewsScraperInterface(ABC, LoaderInterface):
         else:
             page = self.__get_html_source_from_folder(self.address)
         news_list = self.__parse_news(self.address, page)
-        return self.country, news_list
+        return news_list

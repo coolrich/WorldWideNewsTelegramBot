@@ -1,7 +1,7 @@
 from typing import List
 
 from country_codes.country_codes import CountryCodes
-from news_handling.newsarticle import NewsArticle
+from news_handling.news_article import NewsArticle
 
 
 class LoaderInterface:

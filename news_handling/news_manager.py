@@ -7,17 +7,18 @@ from typing import Dict
 from news_handling.news_scraper import UANewsScraper, WorldNewsScraper
 from core.bot_mvc import BotController
 from country_codes.country_codes import CountryCodes
+from news_handling.news_article import NewsArticle
 
 
 # create a class NewsStorage that storages the news by country_codes
 class RuntimeNewsStorage:
     def __init__(self):
-        self.__news_dict: Dict[CountryCodes, list] = {country: [] for country in CountryCodes}
+        self.__news_dict: Dict[CountryCodes, list[NewsArticle]] = {country: [] for country in CountryCodes}
 
     def news_dict(self):
         return self.__news_dict
 
-    def add_news(self, country: CountryCodes, news_list: list):
+    def add_news(self, country: CountryCodes, news_list: list[NewsArticle]):
         """
         Adds news to the news dictionary for a given country.
 
@@ -31,7 +32,7 @@ class RuntimeNewsStorage:
         self.__news_dict[country] = news_list
 
     def get_news(self, country: CountryCodes):
-        return self.__news_dict[country]
+        return self.__news_dict.get(country, [])
 
 
 class NewsManager:
@@ -48,19 +49,19 @@ class NewsManager:
             for scraper in self.__scrapers:
                 with self.__lock:
                     self.__logger.debug("In task get_world_news")
-                    # If there is no file f"{country}-news.json", then download news from
-                    # the Network and save it to the file.
-                    country, news_list = scraper.load_news()
+                    country = scraper.country
                     filename = f"{country}-news.json"
-
-                    # Else, get world news from the storage.
-                    # Check if the difference between current time and world_news_timestamp.json is more than "delay"
-                    # seconds then get news from the scraper
-
+                    news_dict = NewsManager.load_from_json(filename)
+                    if not news_dict:
+                        news_list = scraper.load_news()
+                        NewsManager.save_to_json(filename, news_list)
+                    else:
+                        news_list = news_dict[country]
                     self.runtime_news_storage.add_news(country, news_list)
-                    self.__logger.debug(f"Count of {scraper.address}:"
-                                        f" {len(a_bot_controller.bot_model.world_news_dict)}")
-                    self.__logger.debug(f"Sleeping in get_world_news on {delay}...")
+
+                    # self.__logger.debug(f"Count of {scraper.address}:"
+                    #                     f" {len(a_bot_controller.bot_model.world_news_dict)}")
+                    self.__logger.debug(f"Sleeping in get_news on {delay}...")
                     self.__lock.notify_all()
                     self.__logger.debug(f"End of task {scraper.address}")
                 self.__waiting_for_finish_the_program_or_timeout(delay)
@@ -71,11 +72,14 @@ class NewsManager:
             self.__lock.wait(delay)
 
     @staticmethod
-    def save_to_json(filename, news_list):
+    def save_to_json(filename, news_dict: Dict[CountryCodes, list[NewsArticle]]):
         with open(filename, "w") as file:
-            json.dump(news_list, file)
+            json.dump(news_dict, file)
 
     @staticmethod
     def load_from_json(filename):
-        with open(filename, "r") as file:
-            return json.load(file)
+        try:
+            with open(filename, "r") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return None

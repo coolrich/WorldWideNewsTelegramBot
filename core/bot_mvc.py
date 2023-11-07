@@ -2,6 +2,7 @@ import os
 import threading
 from collections import deque
 from enum import Enum
+from typing import Dict
 
 import telebot
 
@@ -12,21 +13,43 @@ from requests.exceptions import ReadTimeout
 from telebot import types
 from telebot.formatting import escape_markdown
 
+from news_handling.news_article import NewsArticle
+from news_handling.news_manager import RuntimeNewsStorage
+
 
 # Create a User class that holds the user's data: chat_id, news_dicts_dict,
 class User:
     def __init__(self, chat_id):
         self.chat_id = chat_id
-        # self.country_code = country_code
-
+        self.news_articles_dicts: Dict[CountryCodes, list[NewsArticle]] = {}
 
     def __eq__(self, chat_id):
         if isinstance(chat_id, int):
             return chat_id == self.chat_id
         return False
 
-    def get_news_article(self):
-        pass
+    def get_news_article(self, country_code: CountryCodes):
+        articles_list = self.news_articles_dicts[country_code]
+        if articles_list:
+            news_article = articles_list.pop(0)
+            articles_list.append(news_article)
+            return news_article
+        else:
+            self.news_articles_dicts[country_code] = [RuntimeNewsStorage().get_news(country_code)]
+        return None
+
+
+class Users:
+    users: set[User] = set()
+
+    @staticmethod
+    def get_user(chat_id: int):
+        for user in Users.users:
+            if user == chat_id:
+                return user
+    @staticmethod
+    def add_user(chat_id: int):
+        Users.users.add(User(chat_id))
 
 class BotModel:
     def __init__(self, a_news_manager, a_lock, logger):
@@ -34,18 +57,18 @@ class BotModel:
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager
-        self.users = []
         self.logger = logger
-
+        self.users_storage = Users
     def get_data_from_message(self, message: types.Message):
         parse_mode = 'MarkdownV2'
         chat_id = message.chat.id
         message_text = message.text
 
-        if chat_id in self.users:
-            pass
+        if chat_id in self.users_storage.users:
+            user = self.users_storage.get_user(chat_id)
+            user.get_news_article(message_text)
         else:
-            self.users.append(User(chat_id))
+            self.users_storage.add_user(chat_id)
 
     def check_news_init(self):
         pass
