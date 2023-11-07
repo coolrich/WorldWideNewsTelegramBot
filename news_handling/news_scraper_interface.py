@@ -5,13 +5,13 @@ from typing import List, Any
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from countries.countries import Countries
+from country_codes.country_codes import CountryCodes
 from news_handling.loader_interface import LoaderInterface
-from news_handling.news import News
+from news_handling.newsarticle import NewsArticle
 
 
 class NewsScraperInterface(ABC, LoaderInterface):
-    def __init__(self, a_logger: logging.Logger, address: str, country: Countries):
+    def __init__(self, a_logger: logging.Logger, address: str, country: CountryCodes):
         self.__address = address
         self.__logger = a_logger
         self.__country = country
@@ -45,12 +45,12 @@ class NewsScraperInterface(ABC, LoaderInterface):
         return page_source
 
     # add hints to method
-    def __parse_news(self, base_url, html_source) -> List[News]:
+    def __parse_news(self, base_url, html_source) -> List[NewsArticle]:
         self.__logger.debug(f"Start of parsing {html_source}")
         base_url = base_url.split('.com')[0] + '.com'
         bs = BeautifulSoup(html_source, 'html5lib')
         try:
-            news_list: list[News] = self._parser(base_url, bs)
+            news_list: list[NewsArticle] = self._parser(base_url, bs)
             return news_list
         except Exception as e:
             self.__logger.error(f"An unexpected error when parsing {base_url}: {e}")
@@ -58,10 +58,10 @@ class NewsScraperInterface(ABC, LoaderInterface):
         return []
 
     @abstractmethod
-    def _parser(self, base_url: str, bs: BeautifulSoup) -> List[News]:
+    def _parser(self, base_url: str, bs: BeautifulSoup) -> List[NewsArticle]:
         pass
 
-    def load_news(self) -> (Countries, List[News]):
+    def load_news(self) -> (CountryCodes, List[NewsArticle]):
         """
         Load news from a specified address.
 

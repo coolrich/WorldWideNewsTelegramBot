@@ -5,89 +5,50 @@ from enum import Enum
 
 import telebot
 
-from countries.countries import Countries
+from country_codes.country_codes import CountryCodes
 from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
 from telebot import types
 from telebot.formatting import escape_markdown
 
+
 # Create a User class that holds the user's data: chat_id, news_dicts_dict,
 class User:
     def __init__(self, chat_id):
         self.chat_id = chat_id
+        # self.country_code = country_code
+
+
+    def __eq__(self, chat_id):
+        if isinstance(chat_id, int):
+            return chat_id == self.chat_id
+        return False
+
+    def get_news_article(self):
+        pass
+
 class BotModel:
-    def __init__(self, a_news_manager, a_lock, logger, user: User):
+    def __init__(self, a_news_manager, a_lock, logger):
         load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager
-        self.user_news_deqs_dict = {}
-        self.world_news_deque = None
-        self.countries = Countries
-        self.news_dicts_dict = {country: None for country in self.countries}
-        # self.ua_news_dict = self.news_dicts_dict[self.countries.UA]
-        # self.world_news_dict = self.news_dicts_dict[self.countries.WORLD]
+        self.users = []
         self.logger = logger
-        self.user = user
-
-    def create_news_deqs_dict(self, a_chat_id):
-        if a_chat_id not in self.user_news_deqs_dict:
-            for country in self.countries:
-                self.user_news_deqs_dict[a_chat_id] = {
-                    country: deque(self.news_dicts_dict[country])
-                }
-
-        return self.user_news_deqs_dict[a_chat_id]
 
     def get_data_from_message(self, message: types.Message):
-        """
-        Retrieves the message data for processing.
-
-        Args:
-            message (types.Message): The message object containing the data.
-
-        Returns:
-            dict: A dictionary containing the chat ID, post content, and parse mode.
-
-        Raises:
-            None
-        """
         parse_mode = 'MarkdownV2'
         chat_id = message.chat.id
         message_text = message.text
-        if message_text == 'Новини України':
-            news_lang = self.countries.UA
-        else:
-            news_lang = self.countries.WORLD
-        news_deque = self.create_news_deqs_dict(chat_id)[news_lang]
-        if not news_deque:
-            # self.user_news_deqs_dict[chat_id][news_lang] = (
-            #     deque(self.ua_news_dict)) if news_lang == self.countries.UA else \
-            #     (deque(self.world_news_dict))
-            self.user_news_deqs_dict[chat_id][news_lang] = deque(self.news_dicts_dict[news_lang])
-            return {'chat_id': chat_id,
-                    'post': f'Більше новин BBC {news_lang} немає\!\n Починаємо з початку:',
-                    'parse_mode': parse_mode
-                    }
 
-        title = news_deque[0] if news_deque else None
-        # news_dict = self.ua_news_dict if news_lang == self.countries.UA else self.world_news_dict
-        news_dict = self.news_dicts_dict[news_lang]
-        post = BotView.get_news_info(news_dict, news_deque, title)
-        return {'chat_id': chat_id,
-                'post': post,
-                'parse_mode': parse_mode
-                }
+        if chat_id in self.users:
+            pass
+        else:
+            self.users.append(User(chat_id))
 
     def check_news_init(self):
-        self.logger.debug("In check_news_init")
-        # Check if the news dicts values are not None
-        for key in self.news_dicts_dict.keys():
-            self.logger.debug(f"self.news_dicts_dict[key]")
-        self.logger.debug("End of check_news_init")
-        #     return False
-        # return True
+        pass
 
 
 class BotView:
@@ -183,7 +144,8 @@ class BotController:
                 a_bot_controller.logger.info("Starting bot controller...")
                 a_bot_controller.start()
             except ReadTimeout as rt:
-                a_bot_controller.logger.error("In ReadTimeout Exception handler of start_bot_controller() static method")
+                a_bot_controller.logger.error(
+                    "In ReadTimeout Exception handler of start_bot_controller() static method")
                 ErrorHandler.handle_read_timeout_error(rt, a_bot_controller.logger)
 
     @staticmethod

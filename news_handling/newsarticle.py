@@ -1,5 +1,5 @@
 
-class News:
+class NewsArticle:
     """
     Initializes a new instance of the class.
 

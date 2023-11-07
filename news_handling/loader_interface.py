@@ -1,9 +1,9 @@
 from typing import List
 
-from countries.countries import Countries
-from news_handling.news import News
+from country_codes.country_codes import CountryCodes
+from news_handling.newsarticle import NewsArticle
 
 
 class LoaderInterface:
-    def load_news(self) -> (Countries, List[News]):
+    def load_news(self) -> (CountryCodes, List[NewsArticle]):
         pass

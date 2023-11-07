@@ -3,14 +3,14 @@ import time
 from urllib.parse import urljoin
 import logging
 
-from countries.countries import Countries
-from news_handling.news import News
+from country_codes.country_codes import CountryCodes
+from news_handling.newsarticle import NewsArticle
 from news_handling.news_scraper_interface import NewsScraperInterface
 
 
 class UANewsScraper(NewsScraperInterface):
     def __init__(self, a_logger: logging.Logger, an_address: str = r"https://www.bbc.com/ukrainian"):
-        super().__init__(a_logger, an_address, Countries.UA)
+        super().__init__(a_logger, an_address, CountryCodes.UA)
         self.logger = a_logger
 
     def _parser(self, base_url, bs):
@@ -27,7 +27,7 @@ class UANewsScraper(NewsScraperInterface):
                     self.logger.debug(f"Heading: {heading}")
                     self.logger.debug(f"Url: {full_url}")
                     self.logger.debug(f"Text: {text}\n")
-                    news_list.append(News(heading, text, full_url, time.time()))
+                    news_list.append(NewsArticle(heading, text, full_url, time.time()))
             except AttributeError as e:
                 self.logger.error(f"AttributeError in bbc-ukraine parser: {e}")
                 continue
@@ -37,7 +37,7 @@ class UANewsScraper(NewsScraperInterface):
 
 class WorldNewsScraper(NewsScraperInterface):
     def __init__(self, a_logger: logging.Logger, an_address: str = r"https://www.bbc.com/news"):
-        super().__init__(a_logger, an_address, Countries.WORLD)
+        super().__init__(a_logger, an_address, CountryCodes.WORLD)
         self.logger = a_logger
 
     def _parser(self, base_url, bs):
@@ -56,7 +56,7 @@ class WorldNewsScraper(NewsScraperInterface):
                 self.logger.debug(f"Heading: {heading}")
                 self.logger.debug(f"Url: {full_url}")
                 self.logger.debug(f"Text: {text}")
-                news_list.append(News(heading, text, full_url, time.time()))
+                news_list.append(NewsArticle(heading, text, full_url, time.time()))
             except AttributeError as e:
                 self.logger.error(f"AttributeError in bbc parser: {e}")
                 continue

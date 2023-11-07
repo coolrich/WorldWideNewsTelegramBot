@@ -2,32 +2,36 @@ import json
 import threading
 import time
 from enum import Enum
+from typing import Dict
 
 from news_handling.news_scraper import UANewsScraper, WorldNewsScraper
 from core.bot_mvc import BotController
-from countries.countries import Countries
+from country_codes.country_codes import CountryCodes
 
 
-# create a class NewsStorage that storages the news by countries
+# create a class NewsStorage that storages the news by country_codes
 class RuntimeNewsStorage:
     def __init__(self):
-        self.__news_dict = {}
+        self.__news_dict: Dict[CountryCodes, list] = {country: [] for country in CountryCodes}
 
     def news_dict(self):
         return self.__news_dict
 
-    def add_news(self, country: Countries, news_list: list):
+    def add_news(self, country: CountryCodes, news_list: list):
         """
-        Adds news to the news dictionary.
+        Adds news to the news dictionary for a given country.
 
         Parameters:
-            country (Countries): The country for which the news is being added.
+            country (CountryCodes): The country code for which the news is being added.
             news_list (list): A list of news items to be added.
 
         Returns:
             None
         """
         self.__news_dict[country] = news_list
+
+    def get_news(self, country: CountryCodes):
+        return self.__news_dict[country]
 
 
 class NewsManager:
@@ -44,15 +48,14 @@ class NewsManager:
             for scraper in self.__scrapers:
                 with self.__lock:
                     self.__logger.debug("In task get_world_news")
+                    # If there is no file f"{country}-news.json", then download news from
+                    # the Network and save it to the file.
                     country, news_list = scraper.load_news()
-                    # If there is no file f"{country}-news.json", then create it.
-                    #
                     filename = f"{country}-news.json"
 
                     # Else, get world news from the storage.
                     # Check if the difference between current time and world_news_timestamp.json is more than "delay"
                     # seconds then get news from the scraper
-
 
                     self.runtime_news_storage.add_news(country, news_list)
                     self.__logger.debug(f"Count of {scraper.address}:"
