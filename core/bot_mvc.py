@@ -47,9 +47,11 @@ class Users:
         for user in Users.users:
             if user == chat_id:
                 return user
+
     @staticmethod
     def add_user(chat_id: int):
         Users.users.add(User(chat_id))
+
 
 class BotModel:
     def __init__(self, a_news_manager, a_lock, logger):
@@ -59,6 +61,7 @@ class BotModel:
         self.news_manager = a_news_manager
         self.logger = logger
         self.users_storage = Users
+
     def get_data_from_message(self, message: types.Message):
         parse_mode = 'MarkdownV2'
         chat_id = message.chat.id
@@ -66,7 +69,7 @@ class BotModel:
 
         if chat_id in self.users_storage.users:
             user = self.users_storage.get_user(chat_id)
-            user.get_news_article(message_text)
+            user.get_news_article(CountryCodes(message_text))
         else:
             self.users_storage.add_user(chat_id)
 
