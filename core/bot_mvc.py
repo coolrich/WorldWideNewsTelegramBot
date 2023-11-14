@@ -30,12 +30,13 @@ class User:
 
     def get_news_article(self, country_code: CountryCodes):
         articles_list = self.news_articles_dicts[country_code]
-        if articles_list:
-            news_article = articles_list.pop(0)
-            articles_list.append(news_article)
-            return news_article
-        else:
+        if not articles_list:
             self.news_articles_dicts[country_code] = RuntimeNewsStorage().get_news(country_code)
+        news_article = articles_list.pop(0)
+        articles_list.append(news_article)
+        return news_article
+
+
         return None
 
 
@@ -69,6 +70,7 @@ class BotModel:
 
         if chat_id in self.users_storage.users:
             user = self.users_storage.get_user(chat_id)
+            # TODO: Continue from here
             user.get_news_article(CountryCodes(message_text))
         else:
             self.users_storage.add_user(chat_id)

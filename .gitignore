@@ -1,11 +1,9 @@
-/Home - BBC News_files/
 test_sources/bbc-news.html
 test_sources/bbc-news-ukraine.html
 utils/get-pip.py
 .idea
 myenv
 .env
-Новини - BBC News Україна_files
 .gitignore
 *.pyc
 /__pycache__/
