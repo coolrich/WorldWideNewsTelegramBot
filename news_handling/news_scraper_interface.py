@@ -61,7 +61,7 @@ class NewsScraperInterface(ABC, LoaderInterface):
     def _parser(self, base_url: str, bs: BeautifulSoup) -> List[NewsArticle]:
         pass
 
-    def load_news(self) -> (CountryCodes, List[NewsArticle]):
+    def load_news(self) -> (float, List[NewsArticle]):
         """
         Load news from a specified address.
 
@@ -73,4 +73,4 @@ class NewsScraperInterface(ABC, LoaderInterface):
         else:
             page = self.__get_html_source_from_folder(self.address)
         news_list = self.__parse_news(self.address, page)
-        return news_list
+        return time.time(), news_list

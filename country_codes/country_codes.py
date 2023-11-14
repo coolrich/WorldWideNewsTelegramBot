@@ -17,6 +17,9 @@ class CountryCodes(Enum):
                     return country_code
             raise KeyError
 
+    def __call__(self, *args, **kwargs):
+        CountryCodes.get_member_by_value(args[0])
+
 
 if __name__ == '__main__':
     # print(CountryCodes.UA == 'Новини України')

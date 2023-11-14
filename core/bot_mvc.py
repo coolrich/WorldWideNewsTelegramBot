@@ -1,7 +1,7 @@
 import os
 import threading
-from collections import deque
-from enum import Enum
+# from collections import deque
+# from enum import Enum
 from typing import Dict
 
 import telebot
@@ -28,16 +28,13 @@ class User:
             return chat_id == self.chat_id
         return False
 
-    def get_news_article(self, country_code: CountryCodes):
+    def get_news_article(self, country_code: CountryCodes) -> NewsArticle:
         articles_list = self.news_articles_dicts[country_code]
         if not articles_list:
-            self.news_articles_dicts[country_code] = RuntimeNewsStorage().get_news(country_code)
+            self.news_articles_dicts[country_code] = RuntimeNewsStorage().get_news_list(country_code)
         news_article = articles_list.pop(0)
         articles_list.append(news_article)
         return news_article
-
-
-        return None
 
 
 class Users:
@@ -68,12 +65,15 @@ class BotModel:
         chat_id = message.chat.id
         message_text = message.text
 
-        if chat_id in self.users_storage.users:
-            user = self.users_storage.get_user(chat_id)
-            # TODO: Continue from here
-            user.get_news_article(CountryCodes(message_text))
-        else:
+        if chat_id not in self.users_storage.users:
             self.users_storage.add_user(chat_id)
+
+        user = self.users_storage.get_user(chat_id)
+        # TODO: Continue from here
+        news_article = user.get_news_article(CountryCodes(message_text))
+        post = self.news_manager.get_news_info(news_article)
+
+        return {'chat_id': chat_id, 'post': post, 'parse_mode': parse_mode}
 
     def check_news_init(self):
         pass
@@ -84,17 +84,16 @@ class BotView:
         self.__markup = None
 
     @staticmethod
-    def get_news_info(news_dict, news_deque, title):
-        article_info = news_dict[title]
-        text = article_info[0]
-        url = article_info[1]
-        txt_len = len(text)
-        notification = f"{'-' * txt_len}\nНовини про:\nЗаголовок: {title}\nТекст: {text}\nUrl: {url}!\n{'-' * txt_len}"
+    def get_news_info(news_article: NewsArticle):
+        text = news_article.get_text()
+        url = news_article.get_url()
+        title = news_article.get_title()
+        # txt_len = len(text)
+        # notification = f"{'-' * txt_len}\nНовини про:\nЗаголовок: {title}\nТекст: {text}\nUrl: {url}!\n{'-' * txt_len}"
         title = f'*{escape_markdown(title)}*'
         text = escape_markdown(text)
         url = f'[Посилання на статтю]({url})'
         post = f'{title}\n\n{text}\n\n{url}'
-        news_deque.popleft()
         return post
 
     def create_markup(self):
