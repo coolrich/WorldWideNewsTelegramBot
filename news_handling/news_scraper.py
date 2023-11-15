@@ -20,10 +20,10 @@ class UANewsScraper(NewsScraperInterface):
             try:
                 h3_tag = section.h3
                 if h3_tag:
-                    heading = h3_tag.__text.replace('\n', ' ').__title()
+                    heading = h3_tag.text.replace('\n', ' ').title()
                     href_link = h3_tag.a['href']
                     full_url = urljoin(base_url.rstrip('/') + '/', href_link.lstrip('/'))
-                    text = textwrap.fill(h3_tag.next_sibling.__text.replace('\n', ''), 50)
+                    text = textwrap.fill(h3_tag.next_sibling.text.replace('\n', ''), 50)
                     self.logger.debug(f"Heading: {heading}")
                     self.logger.debug(f"Url: {full_url}")
                     self.logger.debug(f"Text: {text}\n")
@@ -45,7 +45,7 @@ class WorldNewsScraper(NewsScraperInterface):
         posts = bs.find('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
         for post in posts:
             try:
-                heading = post.find('a').find('h3').__text
+                heading = post.find('a').find('h3').text
                 p_tag = post.find('p')
                 if p_tag:
                     text = p_tag.get_text()

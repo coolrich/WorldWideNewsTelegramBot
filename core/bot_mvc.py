@@ -15,6 +15,8 @@ from telebot.formatting import escape_markdown
 
 from news_handling.news_article import NewsArticle
 from news_handling.news_manager import RuntimeNewsStorage, NewsManager
+# import logging
+import logging as logger
 
 
 # Create a User class that holds the user's data: chat_id, news_dicts_dict,
@@ -29,18 +31,22 @@ class User:
         return False
 
     def get_news_article(self, country_code: CountryCodes, news_manager: NewsManager) -> NewsArticle:
-        timestamp, articles_list = self.news_articles_dict[country_code]
-        if not articles_list:
+        logger.debug(f"In method get_news_article: {country_code}")
+        logger.debug(f"In method get_news_article news_articles_dict: {self.news_articles_dict}")
+        timestamp, articles_list = self.news_articles_dict.get(country_code, (None, None))
+        logger.debug(f"News timestamp: {timestamp}, News article list: {articles_list}")
+        if articles_list is None:
             runtime_news_storage = news_manager.get_runtime_news_storage()
-            self.news_articles_dict[country_code] = (runtime_news_storage.
-                                                     get_timestamp_and_news_articles_list(country_code))
+            timestamp, articles_list = (runtime_news_storage.get_timestamp_and_news_articles_list(country_code))
+            self.news_articles_dict[country_code] = (timestamp, articles_list)
+        logger.debug(f"News article list: {articles_list}")
         news_article = articles_list.pop(0)
         articles_list.append(news_article)
         return news_article
 
 
 class Users:
-    users: set[User] = set()
+    users: list[User] = list()
 
     @staticmethod
     def get_user(chat_id: int):
@@ -50,7 +56,7 @@ class Users:
 
     @staticmethod
     def add_user(chat_id: int):
-        Users.users.add(User(chat_id))
+        Users.users.append(User(chat_id))
 
 
 class BotModel:
@@ -66,13 +72,13 @@ class BotModel:
         parse_mode = 'MarkdownV2'
         chat_id = message.chat.id
         message_text = message.text
-
+        self.logger.debug(f"Message: {message_text}")
         if chat_id not in self.users_storage.users:
             self.users_storage.add_user(chat_id)
 
         user = self.users_storage.get_user(chat_id)
         # TODO: Continue from here
-        news_article = user.get_news_article(CountryCodes(message_text), self.news_manager)
+        news_article = user.get_news_article(CountryCodes.get_member_by_value(message_text), self.news_manager)
         post = BotView.get_news_info(news_article)
 
         return {'chat_id': chat_id, 'post': post, 'parse_mode': parse_mode}
@@ -139,9 +145,10 @@ class BotController:
                                   reply_markup=self.bot_view.create_markup())
 
             @self.bot.message_handler(
-                func=lambda message: message.__text in ['Новини України', 'Новини Світу'])
+                func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
                 data = self.bot_model.get_data_from_message(message)
+                self.logger.debug(f"My_Data: {data}")
                 self.bot.send_message(chat_id=data['chat_id'],
                                       text=data['post'],
                                       parse_mode=data['parse_mode']
@@ -155,10 +162,10 @@ class BotController:
 
             self.logger.info("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
-            while not check_for_news_init():
-                self.logger.info("News are not ready. Waiting for news initialization...")
-                lock.wait_for(check_for_news_init)
-                lock.notify_all()
+            # while not check_for_news_init():
+            #     self.logger.info("News are not ready. Waiting for news initialization...")
+            #     lock.wait_for(check_for_news_init)
+            #     lock.notify_all()
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
             polling_thread.start()
             self.logger.info("Bot polling has been started...")

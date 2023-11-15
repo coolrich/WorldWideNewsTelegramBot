@@ -3,22 +3,27 @@ import logging
 
 from news_handling.news_article import NewsArticle
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 class CountryCodes(Enum):
-    # logger: logging.Logger = logging.getLogger()
     UA = ['Новини України']
-    WORLD = ['Новини Світу']
+    WORLD = ['Новини Світу', 'World News']
 
     @staticmethod
     def get_member_by_value(item):
+        logger.debug("In CountryCodes in method get_member_by_value")
         if isinstance(item, str):
+            logger.debug("In CountryCodes in method get_member_by_value: " + str(item))
             for country_code in CountryCodes:
-                if item in country_code.value:
+                # logger.debug("In CountryCodes: " + str(item))
+                if str(item) in country_code.value:
+                    logger.debug("In CountryCodes return value: " + str(country_code))
                     return country_code
-            raise KeyError
+        raise KeyError
 
-    def __call__(self, *args, **kwargs):
-        CountryCodes.get_member_by_value(args[0])
+    # def __call__(self, *args, **kwargs):
+    #     CountryCodes.get_member_by_value(args[0])
 
 
 if __name__ == '__main__':
@@ -29,4 +34,3 @@ if __name__ == '__main__':
     # create an example of a dict with values {country_code_1 : NewsList_1, country_code_2: NewsList_2}
     a_dict = CountryCodes({CountryCodes.UA: [NewsArticle("News about UA", "Some news", "https://www.google.com", 1)],
                            CountryCodes.WORLD: [NewsArticle("News ", "about UA_1", "News text", 1)]})
-
