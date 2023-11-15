@@ -15,7 +15,6 @@ from telebot.formatting import escape_markdown
 
 from news_handling.news_article import NewsArticle
 from news_handling.news_manager import RuntimeNewsStorage, NewsManager
-# import logging
 import logging as logger
 
 
@@ -60,12 +59,12 @@ class Users:
 
 
 class BotModel:
-    def __init__(self, a_news_manager: NewsManager, a_lock, logger):
+    def __init__(self, a_news_manager: NewsManager, a_lock, a_logger):
         load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
         self.news_manager = a_news_manager
-        self.logger = logger
+        self.logger = a_logger
         self.users_storage = Users
 
     def get_data_from_message(self, message: types.Message):
@@ -98,9 +97,9 @@ class BotView:
 
     @staticmethod
     def get_news_info(news_article: NewsArticle):
-        text = news_article.get_text()
-        url = news_article.get_url()
-        title = news_article.get_title()
+        text = news_article.get_text
+        url = news_article.get_url
+        title = news_article.get_title
         # txt_len = len(text)
         # notification = f"{'-' * txt_len}\nНовини про:\nЗаголовок: {title}\nТекст: {text}\nUrl: {url}!\n{'-' * txt_len}"
         title = f'*{escape_markdown(title)}*'
@@ -118,15 +117,17 @@ class BotView:
 
 class BotController:
     class MyBotPollingException(telebot.ExceptionHandler):
-        def __init__(self, logger):
-            self.logger = logger
+        def __init__(self, a_logger):
+            self.logger = a_logger
 
         def handle(self, exception):
-            self.logger.error(exception)
+            # self.logger.error(exception)
+            import traceback
+            traceback.print_exc()
             return True
 
-    def __init__(self, a_news_manager, a_lock, program_state_controller, logger):
-        self.logger = logger
+    def __init__(self, a_news_manager, a_lock, program_state_controller, a_logger):
+        self.logger = a_logger
         self.bot_model = BotModel(a_news_manager, a_lock, self.logger)
         self.bot_view = BotView()
         self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException(
@@ -148,7 +149,7 @@ class BotController:
                 func=lambda message: message.text in ['Новини України', 'Новини Світу'])
             def send_news(message):
                 data = self.bot_model.get_data_from_message(message)
-                self.logger.debug(f"My_Data: {data}")
+                # self.logger.debug(f"My_Data: {data}")
                 self.bot.send_message(chat_id=data['chat_id'],
                                       text=data['post'],
                                       parse_mode=data['parse_mode']

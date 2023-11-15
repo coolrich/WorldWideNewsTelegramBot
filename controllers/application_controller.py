@@ -11,12 +11,15 @@ class ApplicationController:
     def __init__(self):
         logging.basicConfig(
             level=logging.DEBUG,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            format='%(asctime)s - %(filename)s - %(levelname)s - %(lineno)d - %(message)s',
             handlers=[
                 logging.StreamHandler(),
             ]
         )
         self.logger = logging.getLogger(__name__)
+
+        logging.disable(logging.DEBUG)
+
         self.logger.debug("Start of the __init__() method in ApplicationController class")
         self.program_state_controller = ProgramStateControllerSingleton()
         self.condition_lock = self.program_state_controller.get_condition()
