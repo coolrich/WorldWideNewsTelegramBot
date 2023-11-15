@@ -76,7 +76,7 @@ class BotModel:
             self.users_storage.add_user(chat_id)
 
         user = self.users_storage.get_user(chat_id)
-        # TODO: Continue from here
+
         news_article = user.get_news_article(CountryCodes.get_member_by_value(message_text), self.news_manager)
         post = BotView.get_news_info(news_article)
 
