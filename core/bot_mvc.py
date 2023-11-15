@@ -14,24 +14,26 @@ from telebot import types
 from telebot.formatting import escape_markdown
 
 from news_handling.news_article import NewsArticle
-from news_handling.news_manager import RuntimeNewsStorage
+from news_handling.news_manager import RuntimeNewsStorage, NewsManager
 
 
 # Create a User class that holds the user's data: chat_id, news_dicts_dict,
 class User:
     def __init__(self, chat_id):
         self.chat_id = chat_id
-        self.news_articles_dicts: Dict[CountryCodes, list[NewsArticle]] = {}
+        self.news_articles_dict: Dict[CountryCodes, (float, list[NewsArticle])] = {}
 
     def __eq__(self, chat_id):
         if isinstance(chat_id, int):
             return chat_id == self.chat_id
         return False
 
-    def get_news_article(self, country_code: CountryCodes) -> NewsArticle:
-        articles_list = self.news_articles_dicts[country_code]
+    def get_news_article(self, country_code: CountryCodes, news_manager: NewsManager) -> NewsArticle:
+        timestamp, articles_list = self.news_articles_dict[country_code]
         if not articles_list:
-            self.news_articles_dicts[country_code] = RuntimeNewsStorage().get_news_list(country_code)
+            runtime_news_storage = news_manager.get_runtime_news_storage()
+            self.news_articles_dict[country_code] = (runtime_news_storage.
+                                                     get_timestamp_and_news_articles_list(country_code))
         news_article = articles_list.pop(0)
         articles_list.append(news_article)
         return news_article
@@ -52,7 +54,7 @@ class Users:
 
 
 class BotModel:
-    def __init__(self, a_news_manager, a_lock, logger):
+    def __init__(self, a_news_manager: NewsManager, a_lock, logger):
         load_dotenv(dotenv_path="../.env")
         self.token = os.getenv("API_KEY")
         self.lock = a_lock
@@ -70,13 +72,18 @@ class BotModel:
 
         user = self.users_storage.get_user(chat_id)
         # TODO: Continue from here
-        news_article = user.get_news_article(CountryCodes(message_text))
-        post = self.news_manager.get_news_info(news_article)
+        news_article = user.get_news_article(CountryCodes(message_text), self.news_manager)
+        post = BotView.get_news_info(news_article)
 
         return {'chat_id': chat_id, 'post': post, 'parse_mode': parse_mode}
 
     def check_news_init(self):
-        pass
+        news_dict = self.news_manager.get_runtime_news_storage().get_news_dict()
+        for news_props_tuple in news_dict:
+            timestamp, articles = news_props_tuple
+            if not articles:
+                return False
+        return True
 
 
 class BotView:
@@ -148,8 +155,8 @@ class BotController:
 
             self.logger.info("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
-            # while check_for_news_init():
             while not check_for_news_init():
+                self.logger.info("News are not ready. Waiting for news initialization...")
                 lock.wait_for(check_for_news_init)
                 lock.notify_all()
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
