@@ -19,12 +19,12 @@ class RuntimeNewsStorage:
         return self.__news_dict
 
     def add_news(self, country: CountryCodes, timestamp: float, news_list: list[NewsArticle]) -> None:
-        timestamp_news_dict = {timestamp: news_list}
-        self.__news_dict[country] = timestamp_news_dict
+        timestamp_news_tuple = (timestamp, news_list)
+        self.__news_dict[country] = timestamp_news_tuple
 
     def get_timestamp_and_news_articles_list(self, country: CountryCodes) -> (float, list[NewsArticle]):
         logger.debug(f"In get_timestamp_and_news_articles_list country: {country}")
-        logger.debug(f"In get_timestamp_and_news_articles_list: {self.__news_dict}")
+        logger.debug(f"In get_timestamp_and_news_articles_list: {self.__news_dict.get(country, (None, None))}")
         timestamp, news_list = self.__news_dict.get(country, (None, None))
         return timestamp, news_list
 
