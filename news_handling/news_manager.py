@@ -47,17 +47,18 @@ class NewsManager:
             while self.__is_program_running():
                 for scraper in self.__scrapers:
                     self.__logger.debug("In task get_world_news")
-                    country = scraper.country
-                    self.__logger.debug(f"Loading {country} news...")
-                    filename = f"{country}-news.pkl"
+                    country_code = scraper.country
+                    self.__logger.info(f"Loading {country_code} news...")
+                    filename = f"{country_code.name}-news.pkl"
                     timestamp_news_list_tuple = self.load_news_from_pkl(filename)
                     self.__logger.debug(f"timestamp_news_list_tuple: {timestamp_news_list_tuple}")
                     if not timestamp_news_list_tuple[1]:
-                        self.__logger.debug(f"Loading {country} news from {scraper.address}...")
+                        self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
                         NewsManager.save_news_to_pkl(filename, timestamp, news_list)
+                        self.__logger.info(f"News has been saved to {filename}!")
                     timestamp, news_list = timestamp_news_list_tuple
-                    self.__runtime_news_storage.add_news(country, timestamp, news_list)
+                    self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
                     self.__logger.debug(f"Sleeping in get_news on {self.__update_period}...")
                     self.__lock.notify_all()
                     self.__logger.debug(f"End of task {scraper.address}")

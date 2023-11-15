@@ -6,16 +6,18 @@ from typing import Dict
 
 import telebot
 
-from country_codes.country_codes import CountryCodes
+from core.keyboard_button_names import KeyboardButtonsNames
 from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
 from telebot import types
 from telebot.formatting import escape_markdown
+from country_codes.country_codes import CountryCodes
 
 from news_handling.news_article import NewsArticle
-from news_handling.news_manager import RuntimeNewsStorage, NewsManager
+from news_handling.news_manager import NewsManager
 import logging as logger
+from core.keyboard_button_names import KeyboardButtonsNames as kbn
 
 
 # Create a User class that holds the user's data: chat_id, news_dicts_dict,
@@ -91,6 +93,9 @@ class BotModel:
         return True
 
 
+# TODO: Create a class that holds names of the buttons for chat
+
+
 class BotView:
     def __init__(self):
         self.__markup = None
@@ -110,8 +115,8 @@ class BotView:
 
     def create_markup(self):
         self.__markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        self.__markup.add(types.KeyboardButton('Новини Світу'))
-        self.__markup.add(types.KeyboardButton('Новини України'))
+        self.__markup.add(types.KeyboardButton(kbn.UA.value))
+        self.__markup.add(types.KeyboardButton(kbn.WORLD.value))
         return self.__markup
 
 
@@ -146,7 +151,7 @@ class BotController:
                                   reply_markup=self.bot_view.create_markup())
 
             @self.bot.message_handler(
-                func=lambda message: message.text in ['Новини України', 'Новини Світу'])
+                func=lambda message: message.text in [kbn.UA.value, kbn.WORLD.value])
             def send_news(message):
                 data = self.bot_model.get_data_from_message(message)
                 # self.logger.debug(f"My_Data: {data}")

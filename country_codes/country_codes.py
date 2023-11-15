@@ -1,14 +1,15 @@
 from enum import Enum
 import logging
-
 from news_handling.news_article import NewsArticle
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+from core.keyboard_button_names import KeyboardButtonsNames as kbn
+
 
 class CountryCodes(Enum):
-    UA = ['Новини України']
-    WORLD = ['Новини Світу', 'World News']
+    UA = [kbn.UA.value, ]
+    WORLD = [kbn.WORLD.value, ]
 
     @staticmethod
     def get_member_by_value(item):

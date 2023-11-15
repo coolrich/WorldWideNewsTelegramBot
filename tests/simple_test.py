@@ -6,7 +6,7 @@ from controllers.application_controller import ApplicationController
 if __name__ == "__main__":
     app = ApplicationController()
     app.start(15)
-    time.sleep(60)
+    time.sleep(60*3)
     print("Start program shutdown...")
     app.stop()
     print("The program has been finished.")
