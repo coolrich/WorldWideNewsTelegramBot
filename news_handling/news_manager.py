@@ -30,7 +30,8 @@ class RuntimeNewsStorage:
 
 
 class NewsManager:
-    def __init__(self, condition_lock: threading.Condition, program_state_controller, a_logger, update_period: int = 60):
+    def __init__(self, condition_lock: threading.Condition, program_state_controller, a_logger,
+                 update_period: int = 60):
         self.__scrapers = [WorldNewsScraper(a_logger), UANewsScraper(a_logger)]
         self.__lock = condition_lock
         self.__program_state_controller = program_state_controller
@@ -97,8 +98,8 @@ class NewsManager:
     # Create a method that checks if news are updated by differ between current timestamp and timestamp of news in
     # storage
     def check_news_updates(self, country: CountryCodes):
-        if time.time() - self.__runtime_news_storage.get_timestamp_and_news_articles_list(country)[
-            0] > self.__update_period:
+        if (time.time() - self.__runtime_news_storage.get_timestamp_and_news_articles_list(country)[0] >
+                self.__update_period):
             return True
         else:
             return False
