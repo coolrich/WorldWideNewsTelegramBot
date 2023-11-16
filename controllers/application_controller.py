@@ -8,7 +8,7 @@ import logging
 
 
 class ApplicationController:
-    def __init__(self):
+    def __init__(self, is_debug_mode: bool = False):
         logging.basicConfig(
             level=logging.DEBUG,
             format='%(asctime)s - %(filename)s - %(levelname)s - %(lineno)d - %(message)s',
@@ -18,8 +18,8 @@ class ApplicationController:
         )
         self.logger = logging.getLogger(__name__)
 
-        logging.disable(logging.DEBUG)
-
+        if not is_debug_mode:
+            logging.disable(logging.DEBUG)
         self.logger.debug("Start of the __init__() method in ApplicationController class")
         self.program_state_controller = ProgramStateControllerSingleton()
         self.condition_lock = self.program_state_controller.get_condition()
@@ -45,7 +45,7 @@ class ApplicationController:
         lock = self.program_state_controller.get_condition()
         with lock:
             self.program_state_controller.set_state(False)
-            self.program_state_controller.notify()
+            self.program_state_controller.notify_all()
         self.logger.debug("End of the __stop_tasks() method in ApplicationController class")
 
     def start(self, download_news_delay: int = 120):

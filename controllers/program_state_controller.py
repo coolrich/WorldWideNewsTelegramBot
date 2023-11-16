@@ -24,5 +24,5 @@ class ProgramStateControllerSingleton:
     def get_condition(self):
         return self.condition
 
-    def notify(self):
+    def notify_all(self):
         self.condition.notify_all()

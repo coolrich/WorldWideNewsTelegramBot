@@ -44,8 +44,8 @@ class NewsManager:
         return self.__runtime_news_storage
 
     def get_news(self, delay: int = 60):
-        with self.__lock:
-            while self.__is_program_running():
+        while self.__is_program_running():
+            with self.__lock:
                 for scraper in self.__scrapers:
                     self.__logger.debug("In task get_world_news")
                     country_code = scraper.country
@@ -67,7 +67,7 @@ class NewsManager:
 
     def __waiting_for_finish_the_program_or_timeout(self):
         t0 = time.time()
-        while time.time() - t0 < self.__update_period:
+        while time.time() - t0 < self.__update_period and self.__is_program_running():
             self.__lock.wait(self.__update_period)
 
     @staticmethod
