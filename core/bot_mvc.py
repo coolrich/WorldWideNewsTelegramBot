@@ -20,7 +20,7 @@ import logging as logger
 from core.keyboard_button_names import KeyboardButtonsNames as kbn
 
 
-# Create a User class that holds the user's data: chat_id, news_dicts_dict,
+# TODO: refactor the code
 class User:
     def __init__(self, chat_id):
         self.chat_id = chat_id
@@ -70,44 +70,51 @@ class BotModel:
         self.logger = a_logger
         self.users_storage = Users
 
-    def get_data_from_message(self, message: types.Message):
+    def get_data(self, message: types.Message):
         parse_mode = 'MarkdownV2'
         chat_id = message.chat.id
         message_text = message.text
+
         self.logger.debug(f"Message: {message_text}")
-        if chat_id not in self.users_storage.users:
-            self.users_storage.add_user(chat_id)
 
-        user = self.users_storage.get_user(chat_id)
+        if self.is_new_user(chat_id):
+            self.add_user(chat_id)
 
-        news_article = user.get_news_article(CountryCodes.get_member_by_value(message_text), self.news_manager)
-        post = BotView.get_news_info(news_article)
+        user = self.get_user(chat_id)
+
+        news_article = self.get_news_article(message_text, user)
+        post = BotView.get_post_dict(news_article)
 
         return {'chat_id': chat_id, 'post': post, 'parse_mode': parse_mode}
 
+    def get_news_article(self, message_text, user):
+        return user.get_news_article(CountryCodes.get_member_by_value(message_text), self.news_manager)
+
+    def get_user(self, chat_id):
+        return self.users_storage.get_user(chat_id)
+
+    def is_new_user(self, chat_id):
+        return chat_id not in self.users_storage.users
+
+    def add_user(self, chat_id):
+        self.users_storage.add_user(chat_id)
+
     def check_news_init(self):
+        self.logger.info("Checking the availability of news...")
         news_dict = self.news_manager.get_runtime_news_storage().get_news_dict()
         self.logger.debug(f"In check_news_init. News dict: {news_dict}")
         if news_dict == {}:
             return False
         return True
-        # self.logger.debug(f"In check_news_init. News dict: {news_dict}")
-        # for news_props_tuple in news_dict:
-        #     timestamp, articles = news_props_tuple
-        #     if not articles:
-        #         return False
-        # return True
-
-
-# TODO: Create a class that holds names of the buttons for chat
 
 
 class BotView:
+
     def __init__(self):
         self.__markup = None
 
     @staticmethod
-    def get_news_info(news_article: NewsArticle):
+    def get_post_dict(news_article: NewsArticle):
         text = news_article.get_text
         url = news_article.get_url
         title = news_article.get_title
@@ -159,12 +166,14 @@ class BotController:
             @self.bot.message_handler(
                 func=lambda message: message.text in [kbn.UA.value, kbn.WORLD.value])
             def send_news(message):
-                data = self.bot_model.get_data_from_message(message)
-                # self.logger.debug(f"My_Data: {data}")
+                data = __get_data(message)
                 self.bot.send_message(chat_id=data['chat_id'],
                                       text=data['post'],
                                       parse_mode=data['parse_mode']
                                       )
+
+            def __get_data(message):
+                return self.bot_model.get_data(message)
 
             @self.bot.message_handler(func=lambda message: True)
             def default_handler(message):
@@ -172,17 +181,19 @@ class BotController:
                                            "нижче:",
                                   reply_markup=self.bot_view.create_markup())
 
-            self.logger.info("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
-            while not check_for_news_init():
-                self.logger.info("News are not ready. Waiting for news initialization...")
-                lock.notify_all()
-                lock.wait_for(check_for_news_init)
+            # while not check_for_news_init():
+            #     self.logger.info("News are not ready. Waiting for news initialization...")
+            #     lock.notify_all()
+            #     lock.wait_for(check_for_news_init)
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
             polling_thread.start()
             self.logger.info("Bot polling has been started...")
             self.__block_until_program_finish(lock, psc)
         self.logger.debug("End of the start() method in BotController class")
+
+    def create_handlers(self):
+        pass
 
     @staticmethod
     def __block_until_program_finish(lock, psc):

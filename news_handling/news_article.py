@@ -1,4 +1,3 @@
-
 class NewsArticle:
     """
     Initializes a new instance of the class.
@@ -9,7 +8,8 @@ class NewsArticle:
         url (str): The URL of the object.
         timestamp (int): The timestamp of the object.
     """
-    def __init__(self, title: str, text: str, url: str, timestamp: float):
+
+    def __init__(self, title: str = "", text: str = "", url: str = ""):
         self.__title = title
         self.__text = text
         self.__url = url

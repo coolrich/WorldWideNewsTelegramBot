@@ -8,7 +8,7 @@ import logging
 
 
 class ApplicationController:
-    def __init__(self, is_debug_mode: bool = False):
+    def __init__(self, is_debug_mode: bool = False, news_update_period: int = 60 * 60):
         logging.basicConfig(
             level=logging.DEBUG,
             format='%(asctime)s - %(filename)s - %(levelname)s - %(lineno)d - %(message)s',
@@ -24,7 +24,8 @@ class ApplicationController:
         self.program_state_controller = ProgramStateControllerSingleton()
         self.condition_lock = self.program_state_controller.get_condition()
         self.function_executor = FunctionExecutor(max_workers=3, logger=self.logger)
-        self.news_manager = NewsManager(self.condition_lock, self.program_state_controller, self.logger)
+        self.news_manager = NewsManager(self.condition_lock, self.program_state_controller, self.logger,
+                                        news_update_period)
         self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller,
                                             self.logger)
         self.start_thread = None
@@ -34,7 +35,7 @@ class ApplicationController:
     def __run_tasks(self, download_news_delay):
         self.logger.debug("Start of the __run_tasks() method in ApplicationController class")
         self.function_executor.execute_functions_periodically(
-            (self.news_manager.get_news, (download_news_delay,)),
+            (self.news_manager.get_news, None),
             (self.bot_controller.start_bot, (self.bot_controller,)),
             (self.bot_controller.stop_bot, (self.bot_controller,)),
         )
