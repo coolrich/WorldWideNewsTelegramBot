@@ -53,21 +53,20 @@ class NewsManager:
                     filename = f"{country_code.name}-news.pkl"
                     timestamp_news_list_tuple = self.load_news_from_pkl(filename)
                     self.__logger.debug(f"timestamp_news_list_tuple: {timestamp_news_list_tuple}")
-                    if not timestamp_news_list_tuple[1]:
+                    if timestamp_news_list_tuple[1] is None:
                         self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
                         NewsManager.save_news_to_pkl(filename, timestamp, news_list)
                         self.__logger.info(f"News has been saved to {filename}!")
-                    timestamp, news_list = timestamp_news_list_tuple
                     self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
-                    self.__logger.debug(f"Sleeping in get_news on {self.__update_period}...")
-                    self.__lock.notify_all()
                     self.__logger.debug(f"End of task {scraper.address}")
+                    self.__logger.debug(f"Sleeping in get_news on {self.__update_period}...")
                 self.__waiting_for_finish_the_program_or_timeout()
 
     def __waiting_for_finish_the_program_or_timeout(self):
         t0 = time.time()
-        while time.time() - t0 < self.__update_period and self.__is_program_running():
+        while (time.time() - t0 < self.__update_period) and self.__is_program_running():
+            self.__lock.notify_all()
             self.__lock.wait(self.__update_period)
 
     @staticmethod
@@ -97,9 +96,9 @@ class NewsManager:
 
     # Create a method that checks if news are updated by differ between current timestamp and timestamp of news in
     # storage
-    def check_news_updates(self, country: CountryCodes):
-        if (time.time() - self.__runtime_news_storage.get_timestamp_and_news_articles_list(country)[0] >
-                self.__update_period):
-            return True
-        else:
-            return False
+    # def check_news_updates(self, country: CountryCodes):
+    #     if (time.time() - self.__runtime_news_storage.get_timestamp_and_news_articles_list(country)[0] >
+    #             self.__update_period):
+    #         return True
+    #     else:
+    #         return False

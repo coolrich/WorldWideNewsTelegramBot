@@ -4,7 +4,7 @@ from controllers.application_controller import ApplicationController
 
 # Test the Application
 if __name__ == "__main__":
-    app = ApplicationController()
+    app = ApplicationController(True)
     app.start(15)
     time.sleep(60*3)
     print("Start program shutdown...")

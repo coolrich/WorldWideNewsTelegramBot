@@ -40,6 +40,7 @@ class User:
             runtime_news_storage = news_manager.get_runtime_news_storage()
             timestamp, articles_list = (runtime_news_storage.get_timestamp_and_news_articles_list(country_code))
             self.news_articles_dict[country_code] = (timestamp, articles_list)
+        logger.debug(f"In get news article: News timestamp: {timestamp}, News article list: {articles_list}")
         logger.debug(f"News article list: {articles_list}")
         news_article = articles_list.pop(0)
         articles_list.append(news_article)
@@ -86,11 +87,16 @@ class BotModel:
 
     def check_news_init(self):
         news_dict = self.news_manager.get_runtime_news_storage().get_news_dict()
-        for news_props_tuple in news_dict:
-            timestamp, articles = news_props_tuple
-            if not articles:
-                return False
+        self.logger.debug(f"In check_news_init. News dict: {news_dict}")
+        if news_dict == {}:
+            return False
         return True
+        # self.logger.debug(f"In check_news_init. News dict: {news_dict}")
+        # for news_props_tuple in news_dict:
+        #     timestamp, articles = news_props_tuple
+        #     if not articles:
+        #         return False
+        # return True
 
 
 # TODO: Create a class that holds names of the buttons for chat
@@ -168,10 +174,11 @@ class BotController:
 
             self.logger.info("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
-            # while not check_for_news_init():
-            #     self.logger.info("News are not ready. Waiting for news initialization...")
-            #     lock.wait_for(check_for_news_init)
-            #     lock.notify_all()
+            # TODO: Make a checking of the completeness of the news initialization
+            while not check_for_news_init():
+                self.logger.info("News are not ready. Waiting for news initialization...")
+                lock.notify_all()
+                lock.wait_for(check_for_news_init)
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
             polling_thread.start()
             self.logger.info("Bot polling has been started...")
