@@ -1,5 +1,4 @@
 import textwrap
-import time
 from urllib.parse import urljoin
 import logging
 
@@ -27,7 +26,7 @@ class UANewsScraper(NewsScraperInterface):
                     self.logger.debug(f"Heading: {heading}")
                     self.logger.debug(f"Url: {full_url}")
                     self.logger.debug(f"Text: {text}\n")
-                    news_list.append(NewsArticle(heading, text, full_url, time.time()))
+                    news_list.append(NewsArticle(heading, text, full_url))
             except AttributeError as e:
                 self.logger.error(f"AttributeError in bbc-ukraine parser: {e}")
                 continue
@@ -42,7 +41,8 @@ class WorldNewsScraper(NewsScraperInterface):
 
     def _parser(self, base_url, bs):
         news_list = []
-        posts = bs.find('div', {'id': 'latest-stories-tab-container'}).find_all('div', 'gs-c-promo')
+        posts = bs.find(id='latest-stories-tab-container', recursive=True)
+        posts = posts.find_all('div', 'gs-c-promo')
         for post in posts:
             try:
                 heading = post.find('a').find('h3').text
@@ -56,7 +56,7 @@ class WorldNewsScraper(NewsScraperInterface):
                 self.logger.debug(f"Heading: {heading}")
                 self.logger.debug(f"Url: {full_url}")
                 self.logger.debug(f"Text: {text}")
-                news_list.append(NewsArticle(heading, text, full_url, time.time()))
+                news_list.append(NewsArticle(heading, text, full_url))
             except AttributeError as e:
                 self.logger.error(f"AttributeError in bbc parser: {e}")
                 continue

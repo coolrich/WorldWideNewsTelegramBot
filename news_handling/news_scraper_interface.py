@@ -28,7 +28,7 @@ class NewsScraperInterface(ABC, LoaderInterface):
 
     def __get_html_source(self, url):
         self.__logger.debug("Start of __get_html_source")
-        time.sleep(3)
+        # time.sleep(3)
         driver = webdriver.Chrome()
         driver.get(url)
         page_source = driver.execute_script('return document.documentElement.outerHTML')

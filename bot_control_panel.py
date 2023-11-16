@@ -13,7 +13,7 @@ from controllers.application_controller import ApplicationController
 bot_active = False
 
 # Створіть веб-сервер Flask
-bot = ApplicationController()
+bot = ApplicationController(is_debug_mode=True)
 flask_app = Flask(__name__)
 flask_app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure random key
 Bootstrap(flask_app)

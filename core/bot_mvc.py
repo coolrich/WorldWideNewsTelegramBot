@@ -99,13 +99,8 @@ class BotModel:
     def add_user(self, chat_id):
         self.users_storage.add_user(chat_id)
 
-    def check_news_init(self):
-        self.logger.info("Checking the availability of news...")
-        news_dict = self.news_manager.get_runtime_news_storage().get_news_dict()
-        self.logger.debug(f"In check_news_init. News dict: {news_dict}")
-        if news_dict == {}:
-            return False
-        return True
+    def are_news_ready(self):
+        return self.news_manager.are_news_ready()
 
 
 class BotView:
@@ -181,11 +176,12 @@ class BotController:
                                            "нижче:",
                                   reply_markup=self.bot_view.create_markup())
 
-            check_for_news_init = self.bot_model.check_news_init
-            # while not check_for_news_init():
-            #     self.logger.info("News are not ready. Waiting for news initialization...")
-            #     lock.notify_all()
-            #     lock.wait_for(check_for_news_init)
+            are_news_ready = self.bot_model.are_news_ready
+            self.logger.info("Checking for news initialization...")
+            while not are_news_ready():
+                self.logger.info("News are not ready. Waiting for news initialization...")
+                lock.notify_all()
+                lock.wait_for(are_news_ready)
             polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
             polling_thread.start()
             self.logger.info("Bot polling has been started...")

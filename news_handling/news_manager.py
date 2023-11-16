@@ -19,8 +19,8 @@ class RuntimeNewsStorage:
         return self.__news_dict
 
     def add_news(self, country: CountryCodes, timestamp: float, news_list: list[NewsArticle]) -> None:
-        timestamp_news_tuple = (timestamp, news_list)
-        self.__news_dict[country] = timestamp_news_tuple
+        self.__news_dict[country] = (timestamp, news_list)
+        logger.debug(f"News for {country} has been added to storage")
 
     def get_timestamp_and_news_articles_list(self, country: CountryCodes) -> (float, list[NewsArticle]):
         logger.debug(f"In get_timestamp_and_news_articles_list country: {country}")
@@ -40,34 +40,41 @@ class NewsManager:
         self.__logger = a_logger
         self.__runtime_news_storage = RuntimeNewsStorage()
         self.__news_update_period = news_update_period
+        self.__are_news_ready = False
 
     def get_runtime_news_storage(self):
         return self.__runtime_news_storage
 
+    def are_news_ready(self):
+        return self.__are_news_ready
+
     def get_news(self):
         while self.__is_program_running():
+            self.__are_news_ready = False
             with self.__lock:
                 for scraper in self.__scrapers:
                     self.__logger.debug("In task get_news")
                     country_code = scraper.country
                     self.__logger.info(f"Loading {country_code} news...")
                     filename = f"{country_code.name}-news.pkl"
+                    self.__logger.debug(f"Loading data from {filename}...")
                     timestamp, news_list = self.load_news_from_pkl(filename)
                     self.__logger.debug(f"news list: {news_list}, timestamp: {timestamp}")
-                    if news_list is None:
+                    if news_list is None or news_list == []:
                         self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
                         NewsManager.save_news_to_pkl(filename, timestamp, news_list)
                         self.__logger.info(f"News has been saved to {filename}!")
                     self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
                     self.__logger.debug(f"End of task {scraper.address}")
-                    self.__logger.debug(f"Sleeping in get_news on {self.__news_update_period}...")
                 self.__waiting_for_finish_the_program_or_timeout()
 
     def __waiting_for_finish_the_program_or_timeout(self):
         t0 = time.time()
         while (time.time() - t0 < self.__news_update_period) and self.__is_program_running():
+            self.__are_news_ready = True
             self.__lock.notify_all()
+            self.__logger.debug(f"Sleeping in get_news on {self.__news_update_period}...")
             self.__lock.wait(self.__news_update_period)
 
     @staticmethod
@@ -91,9 +98,10 @@ class NewsManager:
         try:
             with open(filename, "rb") as file:
                 timestamp, news_list = pickle.load(file)
+                return timestamp, news_list
         except FileNotFoundError:
             self.__logger.debug(f"File {filename} not found.")
-        return timestamp, news_list
+        return None, None
 
     # Create a method that checks if news are updated by differ between current timestamp and timestamp of news in
     # storage
