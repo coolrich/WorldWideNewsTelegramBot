@@ -174,7 +174,6 @@ class BotController:
 
             self.logger.info("Checking the availability of news...")
             check_for_news_init = self.bot_model.check_news_init
-            # TODO: Make a checking of the completeness of the news initialization
             while not check_for_news_init():
                 self.logger.info("News are not ready. Waiting for news initialization...")
                 lock.notify_all()
