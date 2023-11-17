@@ -150,9 +150,8 @@ class BotController:
         with lock:
             self.logger.debug("In start method in BotController class")
             self.create_handlers()
-            are_news_ready = self.bot_model.are_news_ready
             self.logger.info("Checking for news initialization...")
-            self.is_news_available(are_news_ready, lock)
+            self.is_news_available(lock)
             self.start_polling()
             self.logger.info("Bot polling has been started...")
             self.__block_until_program_finish(lock, psc)
@@ -162,7 +161,8 @@ class BotController:
         polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
         polling_thread.start()
 
-    def is_news_available(self, are_news_ready, lock):
+    def is_news_available(self, lock):
+        are_news_ready = self.bot_model.are_news_ready
         while not are_news_ready():
             self.logger.info("News are not ready. Waiting for news initialization...")
             lock.notify_all()
