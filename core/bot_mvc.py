@@ -158,7 +158,7 @@ class BotController:
         self.logger.debug("End of the start() method in BotController class")
 
     def start_polling(self):
-        polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
+        polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 20))
         polling_thread.start()
 
     def is_news_available(self, lock):
