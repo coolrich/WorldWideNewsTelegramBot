@@ -151,45 +151,49 @@ class BotController:
         lock = self.bot_model.lock
         psc = self.program_state_controller
         with lock:
-            self.logger.debug("In start")
-
-            @self.bot.message_handler(commands=['start', 'help'])
-            def send_welcome(message):
-                self.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини",
-                                  reply_markup=self.bot_view.create_markup())
-
-            @self.bot.message_handler(
-                func=lambda message: message.text in [kbn.UA.value, kbn.WORLD.value])
-            def send_news(message):
-                data = __get_data(message)
-                self.bot.send_message(chat_id=data['chat_id'],
-                                      text=data['post'],
-                                      parse_mode=data['parse_mode']
-                                      )
-
-            def __get_data(message):
-                return self.bot_model.get_data(message)
-
-            @self.bot.message_handler(func=lambda message: True)
-            def default_handler(message):
-                self.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню "
-                                           "нижче:",
-                                  reply_markup=self.bot_view.create_markup())
-
+            self.logger.debug("In start method in BotController class")
+            self.create_handlers()
             are_news_ready = self.bot_model.are_news_ready
             self.logger.info("Checking for news initialization...")
-            while not are_news_ready():
-                self.logger.info("News are not ready. Waiting for news initialization...")
-                lock.notify_all()
-                lock.wait_for(are_news_ready)
-            polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
-            polling_thread.start()
+            self.is_news_available(are_news_ready, lock)
+            self.start_polling()
             self.logger.info("Bot polling has been started...")
             self.__block_until_program_finish(lock, psc)
         self.logger.debug("End of the start() method in BotController class")
 
+    def start_polling(self):
+        polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 1))
+        polling_thread.start()
+
+    def is_news_available(self, are_news_ready, lock):
+        while not are_news_ready():
+            self.logger.info("News are not ready. Waiting for news initialization...")
+            lock.notify_all()
+            lock.wait_for(are_news_ready)
+
     def create_handlers(self):
-        pass
+        @self.bot.message_handler(commands=['start', 'help'])
+        def send_welcome(message):
+            self.bot.reply_to(message, "Привіт, я бот для Telegram, який показує новини",
+                              reply_markup=self.bot_view.create_markup())
+
+        @self.bot.message_handler(
+            func=lambda message: message.text in [kbn.UA.value, kbn.WORLD.value])
+        def send_news(message):
+            data = __get_data(message)
+            self.bot.send_message(chat_id=data['chat_id'],
+                                  text=data['post'],
+                                  parse_mode=data['parse_mode']
+                                  )
+
+        def __get_data(message):
+            return self.bot_model.get_data(message)
+
+        @self.bot.message_handler(func=lambda message: True)
+        def default_handler(message):
+            self.bot.reply_to(message, "Я не розумію, що ви хочете сказати. Використовуйте меню "
+                                       "нижче:",
+                              reply_markup=self.bot_view.create_markup())
 
     @staticmethod
     def __block_until_program_finish(lock, psc):
