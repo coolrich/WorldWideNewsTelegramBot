@@ -43,7 +43,9 @@ class RuntimeNewsStorage:
 
 
 class NewsManager:
-    def __init__(self, condition_lock: threading.Condition, program_state_controller, a_logger,
+    def __init__(self,
+                 condition_lock: threading.Condition,
+                 program_state_controller, a_logger,
                  news_update_period: int = 60):
         self.__scrapers = [WorldNewsScraper(a_logger), UANewsScraper(a_logger)]
         self.__lock = condition_lock
