@@ -83,10 +83,9 @@ class NewsManager:
 
                     self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
                     self.__logger.debug(f"End of task {scraper.address}")
-                self.__waiting_for_finish_the_program_or_timeout()
+                self.__waiting()
 
-    def __waiting_for_finish_the_program_or_timeout(self):
-        # t0 = time.time()
+    def __waiting(self):
         while not self.is_news_outdated() and self.__is_program_running():
             self.__are_news_ready = True
             self.__logger.debug(f"Sleeping in get_news on {self.__news_update_period}...")
