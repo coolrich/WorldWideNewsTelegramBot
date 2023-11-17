@@ -1,12 +1,9 @@
 import os
 import threading
-# from collections import deque
-# from enum import Enum
 from typing import Dict
 
 import telebot
 
-from core.keyboard_button_names import KeyboardButtonsNames
 from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
@@ -129,15 +126,6 @@ class BotView:
 
 
 class BotController:
-    class MyBotPollingException(telebot.ExceptionHandler):
-        def __init__(self, a_logger):
-            self.logger = a_logger
-
-        def handle(self, exception):
-            # self.logger.error(exception)
-            import traceback
-            traceback.print_exc()
-            return True
 
     def __init__(self, a_news_manager, a_lock, program_state_controller, a_logger):
         self.logger = a_logger
@@ -146,6 +134,15 @@ class BotController:
         self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException(
             self.logger))
         self.program_state_controller = program_state_controller
+
+    class MyBotPollingException(telebot.ExceptionHandler):
+        def __init__(self, a_logger):
+            self.logger = a_logger
+
+        def handle(self, exception):
+            import traceback
+            traceback.print_exc()
+            return True
 
     def start(self):
         lock = self.bot_model.lock
