@@ -1,9 +1,9 @@
 import os
 import threading
-from typing import Dict
 
 import telebot
 
+from core.user_storage import Users
 from error_handling.error_handler import ErrorHandler
 from dotenv import load_dotenv
 from requests.exceptions import ReadTimeout
@@ -13,49 +13,10 @@ from country_codes.country_codes import CountryCodes
 
 from news_handling.news_article import NewsArticle
 from news_handling.news_manager import NewsManager
-import logging as logger
 from core.keyboard_button_names import KeyboardButtonsNames as kbn
 
 
 # TODO: test the program and make refactoring after successful tests
-class User:
-    def __init__(self, chat_id):
-        self.chat_id = chat_id
-        self.news_articles_dict: Dict[CountryCodes, (float, list[NewsArticle])] = {}
-
-    def __eq__(self, chat_id):
-        if isinstance(chat_id, int):
-            return chat_id == self.chat_id
-        return False
-
-    def get_news_article(self, country_code: CountryCodes, news_manager: NewsManager) -> NewsArticle:
-        logger.debug(f"In method get_news_article: {country_code}")
-        logger.debug(f"In method get_news_article news_articles_dict: {self.news_articles_dict}")
-        timestamp, articles_list = self.news_articles_dict.get(country_code, (None, None))
-        logger.debug(f"News timestamp: {timestamp}, News article list: {articles_list}")
-        if articles_list is None:
-            runtime_news_storage = news_manager.get_runtime_news_storage()
-            timestamp, articles_list = (runtime_news_storage.get_timestamp_and_news_articles_list(country_code))
-            self.news_articles_dict[country_code] = (timestamp, articles_list)
-        logger.debug(f"In get news article: News timestamp: {timestamp}, News article list: {articles_list}")
-        logger.debug(f"News article list: {articles_list}")
-        news_article = articles_list.pop(0)
-        articles_list.append(news_article)
-        return news_article
-
-
-class Users:
-    users: list[User] = list()
-
-    @staticmethod
-    def get_user(chat_id: int):
-        for user in Users.users:
-            if user == chat_id:
-                return user
-
-    @staticmethod
-    def add_user(chat_id: int):
-        Users.users.append(User(chat_id))
 
 
 class BotModel:
