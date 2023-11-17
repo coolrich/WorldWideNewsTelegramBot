@@ -13,7 +13,8 @@ from controllers.application_controller import ApplicationController
 bot_active = False
 
 # Створіть веб-сервер Flask
-bot = ApplicationController(is_debug_mode=True)
+news_update_period = 60 * 60 * 12  # 12 hours
+bot = ApplicationController(is_debug_mode=True, news_update_period=news_update_period)
 flask_app = Flask(__name__)
 flask_app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure random key
 Bootstrap(flask_app)
