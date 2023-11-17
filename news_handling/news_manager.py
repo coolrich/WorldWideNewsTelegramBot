@@ -66,17 +66,21 @@ class NewsManager:
             with self.__lock:
                 for scraper in self.__scrapers:
                     self.__logger.debug("In task get_news")
+
                     country_code = scraper.country
-                    self.__logger.info(f"Loading {country_code} news...")
                     filename = f"{country_code.name}-news.pkl"
+                    timestamp, news_list = self.load_news_from_local_file(filename)
+
+                    self.__logger.info(f"Loading {country_code} news...")
                     self.__logger.debug(f"Loading data from {filename}...")
-                    timestamp, news_list = self.load_news_from_pkl(filename)
                     self.__logger.debug(f"news list: {news_list}, timestamp: {timestamp}")
+
                     if news_list is None or news_list == [] or self.is_news_outdated(timestamp):
                         self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
-                        NewsManager.save_news_to_pkl(filename, timestamp, news_list)
+                        NewsManager.save_news_to_local_file(filename, timestamp, news_list)
                         self.__logger.info(f"News has been saved to {filename}!")
+
                     self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
                     self.__logger.debug(f"End of task {scraper.address}")
                 self.__waiting_for_finish_the_program_or_timeout()
@@ -98,12 +102,12 @@ class NewsManager:
         return time.time() - t0 > self.__news_update_period
 
     @staticmethod
-    def save_news_to_pkl(filename, timestamp: float, news_list: list[NewsArticle]):
+    def save_news_to_local_file(filename, timestamp: float, news_list: list[NewsArticle]):
         news_tuple = (timestamp, news_list)
         with open(filename, "wb") as file:
             pickle.dump(news_tuple, file)
 
-    def load_news_from_pkl(self, filename) -> (float, list[NewsArticle]):
+    def load_news_from_local_file(self, filename) -> (float, list[NewsArticle]):
         """
            Load news data from a pickle file.
 
