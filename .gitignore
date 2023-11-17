@@ -1,6 +1,5 @@
 test_sources/bbc-news.html
 test_sources/bbc-news-ukraine.html
-utils/get-pip.py
 .idea
 myenv
 .env
