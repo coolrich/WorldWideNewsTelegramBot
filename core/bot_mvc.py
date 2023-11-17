@@ -20,7 +20,7 @@ import logging as logger
 from core.keyboard_button_names import KeyboardButtonsNames as kbn
 
 
-# TODO: refactor the code
+# TODO: test the program and make refactoring after successful tests
 class User:
     def __init__(self, chat_id):
         self.chat_id = chat_id

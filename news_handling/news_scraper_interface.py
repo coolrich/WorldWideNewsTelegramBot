@@ -73,4 +73,5 @@ class NewsScraperInterface(ABC, LoaderInterface):
         else:
             page = self.__get_html_source_from_folder(self.address)
         news_list = self.__parse_news(self.address, page)
-        return time.time(), news_list
+        timestamp = time.time()
+        return timestamp, news_list

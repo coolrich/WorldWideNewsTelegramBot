@@ -14,12 +14,15 @@ import logging as logger
 class RuntimeNewsStorage:
     def __init__(self):
         self.__news_dict: Dict[CountryCodes, (float, list[NewsArticle])] = {}
+        self.__timestamp_of_last_save = 0
 
     def get_news_dict(self):
         return self.__news_dict
 
     def add_news(self, country: CountryCodes, timestamp: float, news_list: list[NewsArticle]) -> None:
         self.__news_dict[country] = (timestamp, news_list)
+        if self.__timestamp_of_last_save == 0:
+            self.__timestamp_of_last_save = timestamp
         logger.debug(f"News for {country} has been added to storage")
 
     def get_timestamp_and_news_articles_list(self, country: CountryCodes) -> (float, list[NewsArticle]):
@@ -28,6 +31,15 @@ class RuntimeNewsStorage:
         logger.debug(f"In get_timestamp_and_news_articles_list: {news_dict}")
         timestamp, news_list = news_dict
         return timestamp, news_list
+
+    def get_last_timestamp(self):
+        return self.__timestamp_of_last_save
+
+    def reset_last_timestamp(self):
+        self.__timestamp_of_last_save = 0
+
+    def set_last_timestamp(self, timestamp):
+        self.__timestamp_of_last_save = timestamp
 
 
 class NewsManager:
@@ -60,7 +72,7 @@ class NewsManager:
                     self.__logger.debug(f"Loading data from {filename}...")
                     timestamp, news_list = self.load_news_from_pkl(filename)
                     self.__logger.debug(f"news list: {news_list}, timestamp: {timestamp}")
-                    if news_list is None or news_list == []:
+                    if news_list is None or news_list == [] or self.is_news_outdated(timestamp):
                         self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
                         NewsManager.save_news_to_pkl(filename, timestamp, news_list)
@@ -70,12 +82,20 @@ class NewsManager:
                 self.__waiting_for_finish_the_program_or_timeout()
 
     def __waiting_for_finish_the_program_or_timeout(self):
-        t0 = time.time()
-        while (time.time() - t0 < self.__news_update_period) and self.__is_program_running():
+        # t0 = time.time()
+        while not self.is_news_outdated() and self.__is_program_running():
             self.__are_news_ready = True
-            self.__lock.notify_all()
             self.__logger.debug(f"Sleeping in get_news on {self.__news_update_period}...")
+            self.__lock.notify_all()
             self.__lock.wait(self.__news_update_period)
+        self.__runtime_news_storage.reset_last_timestamp()
+
+    def is_news_outdated(self, timestamp: float = None):
+        if timestamp is None:
+            t0 = self.__runtime_news_storage.get_last_timestamp()
+        else:
+            t0 = timestamp
+        return time.time() - t0 > self.__news_update_period
 
     @staticmethod
     def save_news_to_pkl(filename, timestamp: float, news_list: list[NewsArticle]):
