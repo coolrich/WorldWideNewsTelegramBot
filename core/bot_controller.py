@@ -36,14 +36,11 @@ class BotController:
             self.create_handlers()
             self.logger.info("Checking for news initialization...")
             self.is_news_available(lock)
-            self.start_polling()
+            self.bot.polling()
             self.logger.info("Bot polling has been started...")
             self.__block_until_program_finish(lock, psc)
         self.logger.debug("End of the start() method in BotController class")
 
-    def start_polling(self):
-        polling_thread = threading.Thread(target=self.bot.polling, args=(False, False, 0, 0, 20))
-        polling_thread.start()
 
     def is_news_available(self, lock):
         are_news_ready = self.bot_model.are_news_ready
