@@ -1,9 +1,9 @@
 import pickle
 import threading
 import time
-from enum import Enum
 from typing import Dict
 
+from controllers.program_state_controller import program_state_controller as psc
 from news_handling.news_scraper import UANewsScraper, WorldNewsScraper
 from country_codes.country_codes import CountryCodes
 from news_handling.news_article import NewsArticle
@@ -45,26 +45,20 @@ class RuntimeNewsStorage:
 class NewsManager:
     def __init__(self,
                  condition_lock: threading.Condition,
-                 program_state_controller, a_logger,
+                 a_logger,
                  news_update_period: int = 60):
         self.__scrapers = [WorldNewsScraper(a_logger), UANewsScraper(a_logger)]
         self.__lock = condition_lock
-        self.__program_state_controller = program_state_controller
-        self.__is_program_running = self.__program_state_controller.is_program_running
         self.__logger = a_logger
         self.__runtime_news_storage = RuntimeNewsStorage()
         self.__news_update_period = news_update_period
-        self.__are_news_ready = False
 
     def get_runtime_news_storage(self):
         return self.__runtime_news_storage
 
-    def are_news_ready(self):
-        return self.__are_news_ready
-
     def get_news(self):
-        while self.__is_program_running():
-            self.__are_news_ready = False
+        while psc.get_program_state():
+            psc.set_news_state(False)
             with self.__lock:
                 for scraper in self.__scrapers:
                     self.__logger.debug("In task get_news")
@@ -88,8 +82,8 @@ class NewsManager:
                 self.__waiting()
 
     def __waiting(self):
-        while not self.is_news_outdated() and self.__is_program_running():
-            self.__are_news_ready = True
+        while not self.is_news_outdated() and psc.get_program_state():
+            psc.set_news_state(True)
             self.__logger.debug(f"Sleeping in get_news on {self.__news_update_period}...")
             self.__lock.notify_all()
             self.__lock.wait(self.__news_update_period)
@@ -127,12 +121,3 @@ class NewsManager:
         except FileNotFoundError:
             self.__logger.debug(f"File {filename} not found.")
         return None, None
-
-    # Create a method that checks if news are updated by differ between current timestamp and timestamp of news in
-    # storage
-    # def check_news_updates(self, country: CountryCodes):
-    #     if (time.time() - self.__runtime_news_storage.get_timestamp_and_news_articles_list(country)[0] >
-    #             self.__update_period):
-    #         return True
-    #     else:
-    #         return False

@@ -14,8 +14,15 @@ class ProgramStateControllerSingleton:
             self.__is_running = True
             self.condition = threading.Condition()
             self.rlock = threading.RLock()
+            self.__is_news_ready = False
 
-    def is_program_running(self):
+    def is_news_ready(self):
+        return self.__is_news_ready
+
+    def set_news_state(self, state: bool):
+        self.__is_news_ready = state
+
+    def get_program_state(self):
         return self.__is_running
 
     def set_state(self, state):
@@ -26,3 +33,6 @@ class ProgramStateControllerSingleton:
 
     def notify_all(self):
         self.condition.notify_all()
+
+
+program_state_controller = ProgramStateControllerSingleton()

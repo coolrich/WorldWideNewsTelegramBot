@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from telebot import types
 
+from controllers.program_state_controller import program_state_controller as psc
 from core.bot_view import BotView
 from core.user_storage import Users
 from country_codes.country_codes import CountryCodes
@@ -47,5 +48,6 @@ class BotModel:
     def add_user(self, chat_id):
         self.users_storage.add_user(chat_id)
 
-    def are_news_ready(self):
-        return self.news_manager.are_news_ready()
+    @staticmethod
+    def is_news_ready():
+        return psc.is_news_ready()

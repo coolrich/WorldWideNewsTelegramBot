@@ -1,7 +1,7 @@
 import threading
 
 from core.bot_controller import BotController
-from controllers.program_state_controller import ProgramStateControllerSingleton
+from controllers.program_state_controller import program_state_controller as psc
 from controllers.function_executor import FunctionExecutor
 from news_handling.news_manager import NewsManager
 import logging
@@ -21,15 +21,12 @@ class ApplicationController:
         if not is_debug_mode:
             logging.disable(logging.DEBUG)
         self.logger.debug("Start of the __init__() method in ApplicationController class")
-        self.program_state_controller = ProgramStateControllerSingleton()
-        self.condition_lock = self.program_state_controller.get_condition()
+        self.condition_lock = psc.get_condition()
         self.function_executor = FunctionExecutor(max_workers=3, logger=self.logger)
         self.news_manager = NewsManager(self.condition_lock,
-                                        self.program_state_controller,
                                         self.logger,
                                         news_update_period)
-        self.bot_controller = BotController(self.news_manager, self.condition_lock, self.program_state_controller,
-                                            self.logger)
+        self.bot_controller = BotController(self.news_manager, self.condition_lock, self.logger)
         self.start_thread = None
         self.stop_thread = None
         self.logger.debug("End of the __init__() method in ApplicationController class")
@@ -45,15 +42,15 @@ class ApplicationController:
 
     def __stop_tasks(self):
         self.logger.debug("Start of the __stop_tasks() method in ApplicationController class")
-        lock = self.program_state_controller.get_condition()
+        lock = psc.get_condition()
         with lock:
-            self.program_state_controller.set_state(False)
-            self.program_state_controller.notify_all()
+            psc.set_state(False)
+            psc.notify_all()
         self.logger.debug("End of the __stop_tasks() method in ApplicationController class")
 
     def start(self, download_news_delay: int = 120):
         self.logger.debug("Start of the start() method in Application class")
-        self.program_state_controller.set_state(True)
+        psc.set_state(True)
         self.start_thread = threading.Thread(target=self.__run_tasks, args=(download_news_delay,))
         self.stop_thread = threading.Thread(target=self.__stop_tasks)
         self.start_thread.start()
