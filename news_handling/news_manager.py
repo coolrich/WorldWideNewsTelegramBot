@@ -70,17 +70,6 @@ class NewsManager:
             pickle.dump(news_tuple, file)
 
     def load_news_from_local_file(self, filename) -> (float, list[NewsArticle]):
-        """
-           Load news data from a pickle file.
-
-           Args:
-               filename (str): The name of the pickle file.
-
-           Returns:
-               A tuple containing the timestamp and a list of NewsArticle objects loaded from the file. If the file is not found,
-               an empty tuple is returned.
-           """
-        timestamp, news_list = (None, None)
         try:
             with open(filename, "rb") as file:
                 timestamp, news_list = pickle.load(file)
