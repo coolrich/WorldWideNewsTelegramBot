@@ -8,16 +8,26 @@ from core.bot_view import BotView
 from core.user_storage import Users
 from country_codes.country_codes import CountryCodes
 from news_handling.news_manager import NewsManager
+from google.cloud import secretmanager
 
 
 class BotModel:
     def __init__(self, a_news_manager: NewsManager, a_lock, a_logger):
         load_dotenv(dotenv_path="../.env")
-        self.token = os.getenv("API_KEY")
+        # self.token = os.getenv("API_KEY")
+        self.token = BotModel.get_secret("worldwidenewstelegrambot", "bot_token")
         self.lock = a_lock
         self.news_manager = a_news_manager
         self.logger = a_logger
         self.users_storage = Users
+
+    @staticmethod
+    def get_secret(project_id, secret_id, version_id="latest"):
+        client = secretmanager.SecretManagerServiceClient()
+        name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+        response = client.access_secret_version(request={"name": name})
+        payload = response.payload.data.decode("UTF-8")
+        return payload
 
     def get_data(self, message: types.Message):
         parse_mode = 'MarkdownV2'
