@@ -3,7 +3,7 @@ import threading
 import time
 
 from controllers.program_state_controller import program_state_controller as psc
-from news_handling.news_scraper import UANewsScraper, WorldNewsScraper
+from news_handling.news_scrapers import UANewsScraper, WorldNewsScraper
 from news_handling.news_article import NewsArticle
 
 from news_handling.runtime_news_storage import RuntimeNewsStorage
