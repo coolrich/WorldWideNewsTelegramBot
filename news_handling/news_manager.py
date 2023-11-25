@@ -130,7 +130,6 @@ class NewsManager:
         return timestamp, news_list
 
 
-# TODO: Create a simple test for news manager class
 if __name__ == "__main__":
     import logging
     import threading
