@@ -54,7 +54,9 @@ class NewsManager:
                         NewsManager.save_news(filename, timestamp, news_list)
                         # save to cache
                         self.save_to_cache(filename, timestamp, news_list)
+                        # Number of news articles of country
                         self.__logger.info(f"News has been saved to {filename}!")
+                    self.__logger.info(f"Number of {country_code} news: {len(news_list)}")
 
                     self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
                     self.__logger.debug(f"End of task {scraper.address}")
@@ -135,5 +137,5 @@ if __name__ == "__main__":
     import threading
 
     logging.basicConfig(level=logging.DEBUG)
-    news_manager = NewsManager(threading.Condition(), logging.getLogger(), 60*2)
+    news_manager = NewsManager(threading.Condition(), logging.getLogger(), 60 * 2)
     news_manager.get_news()

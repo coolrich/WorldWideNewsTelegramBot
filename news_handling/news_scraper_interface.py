@@ -3,6 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import List, Any
 
+import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from country_codes.country_codes import CountryCodes
@@ -26,13 +27,27 @@ class NewsScraperInterface(ABC, LoaderInterface):
     def country(self):
         return self.__country
 
+    # def __get_html_source(self, url):
+    #     self.__logger.debug("Start of __get_html_source")
+    #     # time.sleep(3)
+    #     driver = webdriver.Chrome()
+    #     driver.get(url)
+    #     page_source = driver.execute_script('return document.documentElement.outerHTML')
+    #     driver.quit()
+    #     self.__logger.debug("End of __get_html_source")
+    #     return page_source
+
     def __get_html_source(self, url):
         self.__logger.debug("Start of __get_html_source")
-        # time.sleep(3)
-        driver = webdriver.Chrome()
-        driver.get(url)
-        page_source = driver.execute_script('return document.documentElement.outerHTML')
-        driver.quit()
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            page_source = response.text
+            self.__logger.debug("Successfully fetched HTML source")
+        else:
+            self.__logger.error("Failed to fetch HTML source: {}".format(response.status_code))
+            page_source = None
+
         self.__logger.debug("End of __get_html_source")
         return page_source
 
