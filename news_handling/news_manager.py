@@ -37,12 +37,16 @@ class NewsManager:
 
                     country_code = scraper.country
                     filename = f"{country_code.name}-news.pkl"
+
                     # load from file
                     # timestamp, news_list = self.load_news(filename)
-                    # load from cache
+
+                    # load from GCS cache
                     timestamp, news_list = self.load_from_cache(filename)
+
                     if news_list is not None:
                         self.__logger.info(f"News \"{filename}\" has been loaded from cache GCS bucket!")
+
                     self.__logger.info(f"Loading {country_code} news...")
                     self.__logger.debug(f"Loading data from {filename}...")
                     self.__logger.debug(f"news list: {news_list}, timestamp: {timestamp}")
@@ -51,11 +55,12 @@ class NewsManager:
                         self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
                         # save to file
-                        NewsManager.save_news(filename, timestamp, news_list)
-                        # save to cache
+                        # NewsManager.save_news(filename, timestamp, news_list)
+                        # save to GCS cache
                         self.save_to_cache(filename, timestamp, news_list)
-                        # Number of news articles of country
                         self.__logger.info(f"News has been saved to {filename}!")
+
+                    # Number of news articles of country
                     self.__logger.info(f"Number of {country_code} news: {len(news_list)}")
 
                     self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
