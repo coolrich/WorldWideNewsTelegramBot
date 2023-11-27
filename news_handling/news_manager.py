@@ -28,6 +28,10 @@ class NewsManager:
     def get_runtime_news_storage(self):
         return self.__runtime_news_storage
 
+    @staticmethod
+    def get_filename(country_code):
+        return f"{country_code.name}-news.pkl"
+
     def get_news(self):
         while psc.get_program_state():
             psc.set_news_state(False)
@@ -35,35 +39,29 @@ class NewsManager:
                 for scraper in self.__scrapers:
                     self.__logger.debug("In task get_news")
 
-                    country_code = scraper.country
-                    filename = f"{country_code.name}-news.pkl"
-
-                    # load from file
-                    # timestamp, news_list = self.load_news(filename)
+                    filename = NewsManager.get_filename(scraper.country_code)
 
                     # load from GCS cache
-                    timestamp, news_list = self.load_from_cache(filename)
+                    timestamp, news_list = self.load_from_gcs_bucket(filename)
 
                     if news_list is not None:
-                        self.__logger.info(f"News \"{filename}\" has been loaded from cache GCS bucket!")
+                        self.__logger.info(f"News \"{filename}\" has been successfully loaded from cache GCS bucket!")
 
-                    self.__logger.info(f"Loading {country_code} news...")
+                    self.__logger.info(f"Loading {scraper.country_code} news...")
                     self.__logger.debug(f"Loading data from {filename}...")
                     self.__logger.debug(f"news list: {news_list}, timestamp: {timestamp}")
 
                     if news_list is None or news_list == [] or self.is_news_outdated(timestamp):
-                        self.__logger.info(f"Loading {country_code} news from {scraper.address}...")
+                        self.__logger.info(f"Loading {scraper.country_code} news from {scraper.address}...")
                         timestamp, news_list = scraper.load_news()
-                        # save to file
-                        # NewsManager.save_news(filename, timestamp, news_list)
-                        # save to GCS cache
-                        self.save_to_cache(filename, timestamp, news_list)
+                        self.save_to_gcs_bucket(filename, timestamp, news_list)
                         self.__logger.info(f"News has been saved to {filename}!")
 
                     # Number of news articles of country
-                    self.__logger.info(f"Number of {country_code} news: {len(news_list)}")
+                    self.__logger.info(f"Number of {scraper.country_code} news: {len(news_list)}")
 
-                    self.__runtime_news_storage.add_news(country_code, timestamp, news_list)
+                    # TODO: modify code that is save the country code, timestamp and news list to Google Cloud Cache
+                    self.__runtime_news_storage.add_news(scraper.country_code, timestamp, news_list)
                     self.__logger.debug(f"End of task {scraper.address}")
                 self.__waiting()
 
@@ -88,7 +86,7 @@ class NewsManager:
         with open(filename, "wb") as file:
             pickle.dump(news_tuple, file)
 
-    def save_to_cache(self, filename, timestamp: float, news_list: list[NewsArticle]):
+    def save_to_gcs_bucket(self, filename, timestamp: float, news_list: list[NewsArticle]):
         # Set the Google Cloud Storage bucket name
         # bucket_name = os.environ.get('GCS_BUCKET_NAME')
 
@@ -115,7 +113,7 @@ class NewsManager:
             self.__logger.debug(f"File {filename} not found.")
         return None, None
 
-    def load_from_cache(self, filename) -> (float, list[NewsArticle]):
+    def load_from_gcs_bucket(self, filename) -> (float, list[NewsArticle]):
         # Set the Google Cloud Storage bucket name
         # bucket_name = os.environ.get('GCS_BUCKET_NAME')
         timestamp, news_list = None, None

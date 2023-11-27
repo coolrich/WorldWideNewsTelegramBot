@@ -12,6 +12,7 @@ from google.cloud import secretmanager
 
 
 class BotModel:
+    # TODO: delete NewsManager from this class
     def __init__(self, a_news_manager: NewsManager, a_lock, a_logger):
         load_dotenv(dotenv_path="../.env")
         # self.token = os.getenv("API_KEY")

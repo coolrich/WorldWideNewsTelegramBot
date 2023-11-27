@@ -22,6 +22,7 @@ class User:
         timestamp, articles_list = self.news_articles_dict.get(country_code, (None, None))
         logger.debug(f"News timestamp: {timestamp}, News article list: {articles_list}")
         if articles_list is None:
+            # TODO: change retrieving news from runtime news storage to retrieving news from google cloud storage
             runtime_news_storage = news_manager.get_runtime_news_storage()
             timestamp, articles_list = (runtime_news_storage.get_timestamp_and_news_articles_list(country_code))
             self.news_articles_dict[country_code] = (timestamp, articles_list)

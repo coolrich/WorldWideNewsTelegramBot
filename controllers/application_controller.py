@@ -23,6 +23,7 @@ class ApplicationController:
         self.logger.debug("Start of the __init__() method in ApplicationController class")
         self.condition_lock = psc.get_condition()
         self.function_executor = FunctionExecutor(max_workers=3, logger=self.logger)
+        # TODO: Delete NewsManager from this class
         self.news_manager = NewsManager(self.condition_lock,
                                         self.logger,
                                         news_update_period)

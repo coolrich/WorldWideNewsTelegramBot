@@ -24,7 +24,7 @@ class NewsScraperInterface(ABC, LoaderInterface):
 
     # Create properties for country
     @property
-    def country(self):
+    def country_code(self):
         return self.__country
 
     # def __get_html_source(self, url):
