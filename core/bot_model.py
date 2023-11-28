@@ -7,18 +7,15 @@ from controllers.program_state_controller import program_state_controller as psc
 from core.bot_view import BotView
 from core.user_storage import Users
 from country_codes.country_codes import CountryCodes
-from news_handling.news_manager import NewsManager
 from google.cloud import secretmanager
 
 
 class BotModel:
-    # TODO: delete NewsManager from this class
-    def __init__(self, a_news_manager: NewsManager, a_lock, a_logger):
+    def __init__(self, a_lock, a_logger):
         load_dotenv(dotenv_path="../.env")
         # self.token = os.getenv("API_KEY")
         self.token = BotModel.get_secret("worldwidenewstelegrambot", "bot_token")
         self.lock = a_lock
-        self.news_manager = a_news_manager
         self.logger = a_logger
         self.users_storage = Users
 
@@ -47,8 +44,9 @@ class BotModel:
 
         return {'chat_id': chat_id, 'post': post, 'parse_mode': parse_mode}
 
-    def get_news_article(self, message_text, user):
-        return user.get_news_article(CountryCodes.get_member_by_value(message_text), self.news_manager)
+    @staticmethod
+    def get_news_article(message_text, user):
+        return user.get_news_article(CountryCodes.get_member_by_value(message_text))
 
     def get_user(self, chat_id):
         return self.users_storage.get_user(chat_id)

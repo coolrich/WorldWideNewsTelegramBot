@@ -12,9 +12,9 @@ from error_handling.error_handler import ErrorHandler
 
 class BotController:
 
-    def __init__(self, a_news_manager, a_lock, a_logger):
+    def __init__(self, a_lock, a_logger):
         self.logger = a_logger
-        self.bot_model = BotModel(a_news_manager, a_lock, self.logger)
+        self.bot_model = BotModel(a_lock, self.logger)
         self.bot_view = BotView()
         self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException(
             self.logger))

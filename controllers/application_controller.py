@@ -3,7 +3,6 @@ import threading
 from core.bot_controller import BotController
 from controllers.program_state_controller import program_state_controller as psc
 from controllers.function_executor import FunctionExecutor
-from news_handling.news_manager import NewsManager
 import logging
 
 
@@ -23,11 +22,7 @@ class ApplicationController:
         self.logger.debug("Start of the __init__() method in ApplicationController class")
         self.condition_lock = psc.get_condition()
         self.function_executor = FunctionExecutor(max_workers=3, logger=self.logger)
-        # TODO: Delete NewsManager from this class
-        self.news_manager = NewsManager(self.condition_lock,
-                                        self.logger,
-                                        news_update_period)
-        self.bot_controller = BotController(self.news_manager, self.condition_lock, self.logger)
+        self.bot_controller = BotController(self.condition_lock, self.logger)
         self.start_thread = None
         self.stop_thread = None
         self.logger.debug("End of the __init__() method in ApplicationController class")
@@ -35,7 +30,6 @@ class ApplicationController:
     def __run_tasks(self, download_news_delay):
         self.logger.debug("Start of the __run_tasks() method in ApplicationController class")
         self.function_executor.execute_functions_periodically(
-            (self.news_manager.get_news, None),
             (self.bot_controller.start_bot, (self.bot_controller,)),
             (self.bot_controller.stop_bot, (self.bot_controller,)),
         )
