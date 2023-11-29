@@ -9,10 +9,7 @@ myenv
 /__pycache__/*
 /GPT_how_to_create_secure_app
 /GPT_how_to_create_secure_app_1
-/tests/UA-news.pkl
 /core/__init__.py
-/UA-news.pkl
-/WORLD-news.pkl
 /news_handling/__init__.py
-/news_handling/UA-news.pkl
-/news_handling/WORLD-news.pkl
+
+
