@@ -19,7 +19,11 @@ class BotView:
         # notification = f"{'-' * txt_len}\nНовини про:\nЗаголовок: {title}\nТекст: {text}\nUrl: {url}!\n{'-' * txt_len}"
         title = f'*{escape_markdown(title)}*'
         text = escape_markdown(text)
-        url = f'[Посилання на статтю]({url})'
+        url_text = '[Посилання на статтю]'
+        if url != "":
+            url = f'{url_text}({url})'
+        else:
+            url = ""
         post = f'{title}\n\n{text}\n\n{url}'
         return post
 

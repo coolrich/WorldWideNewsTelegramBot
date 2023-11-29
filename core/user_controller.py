@@ -26,6 +26,8 @@ class User:
             self.news_articles_dict[country_code] = (timestamp, articles_list)
         logger.debug(f"In get news article: News timestamp: {timestamp}, News article list: {articles_list}")
         logger.debug(f"News article list: {articles_list}")
+        if articles_list is None:
+            return NewsArticle("", "News are updating, please wait...", "")
         news_article = articles_list.pop(0)
         articles_list.append(news_article)
         return news_article

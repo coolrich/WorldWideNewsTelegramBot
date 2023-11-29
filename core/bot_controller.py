@@ -34,7 +34,7 @@ class BotController:
             self.logger.debug("In start method in BotController class")
             self.create_handlers()
             self.logger.info("Checking for news initialization...")
-            self.is_news_available(lock)
+            # self.is_news_available(lock)
         self.bot.polling(long_polling_timeout=2)
         with lock:
             self.logger.info("Bot polling has been started...")
