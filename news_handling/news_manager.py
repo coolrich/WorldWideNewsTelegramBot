@@ -22,7 +22,7 @@ class NewsManager:
     def get_filename(country_code: CountryCodes):
         return f"{country_code.name}-news.pkl"
 
-    def get_news(self):
+    def download_and_save_news(self):
         for scraper in self.__scrapers:
             self.__logger.debug("In task get_news")
             filename = NewsManager.get_filename(scraper.country_code)
@@ -36,16 +36,18 @@ class NewsManager:
     @staticmethod
     def save_to_gcs_bucket(filename, timestamp: float, news_list: list[NewsArticle]) -> None:
         """
-        Save the given news articles data to a Google Cloud Storage bucket.
+        Save the given news articles to a specified Google Cloud Storage (GCS) bucket.
 
-        Parameters:
-            filename (str): The name of the file to be saved.
-            timestamp (float): The timestamp of when the news articles data was generated.
-            news_list (list[NewsArticle]): A list of NewsArticle objects containing the news articles data.
-            country_code (CountryCodes): The country code associated with the news articles data.
+        Args:
+            filename (str): The name of the file to be saved in the GCS bucket.
+            timestamp (float): The timestamp associated with the news articles.
+            news_list (list[NewsArticle]): A list of NewsArticle objects to be saved.
 
         Returns:
-            None
+            None: This function does not return any value.
+
+        Raises:
+            None: This function does not raise any exceptions.
         """
         bucket_name = NewsManager.bucket_name
         bucket = NewsManager.client.bucket(bucket_name)
@@ -133,4 +135,4 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
     news_manager = NewsManager(logging.getLogger())
-    news_manager.get_news()
+    news_manager.download_and_save_news()
