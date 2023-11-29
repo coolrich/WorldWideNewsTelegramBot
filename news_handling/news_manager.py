@@ -28,14 +28,13 @@ class NewsManager:
             filename = NewsManager.get_filename(scraper.country_code)
             self.__logger.info(f"Loading {scraper.country_code} news from {scraper.address}...")
             timestamp, news_list = scraper.load_news()
-            NewsManager.save_to_gcs_bucket(filename, timestamp, news_list, scraper.country_code)
+            NewsManager.save_to_gcs_bucket(filename, timestamp, news_list)
             self.__logger.info(f"News has been saved to {filename} on GCS!")
             self.__logger.info(f"Number of {scraper.country_code} news: {len(news_list)}")
             self.__logger.debug(f"End of task {scraper.address}")
 
     @staticmethod
-    def save_to_gcs_bucket(filename, timestamp: float, news_list: list[NewsArticle], country_code: CountryCodes) \
-            -> None:
+    def save_to_gcs_bucket(filename, timestamp: float, news_list: list[NewsArticle]) -> None:
         """
         Save the given news articles data to a Google Cloud Storage bucket.
 
@@ -51,7 +50,7 @@ class NewsManager:
         bucket_name = NewsManager.bucket_name
         bucket = NewsManager.client.bucket(bucket_name)
         blob = bucket.blob(filename)
-        data = pickle.dumps((timestamp, news_list, country_code))
+        data = pickle.dumps((timestamp, news_list))
         blob.upload_from_string(data)
 
     @staticmethod
@@ -110,10 +109,23 @@ class NewsManager:
         return articles_list
 
     @staticmethod
-    def get_timestamp_and_news_articles_list(country_code: CountryCodes) -> (float, list[NewsArticle]):
+    def get_news_data(country_code: CountryCodes) -> (float, list[NewsArticle], CountryCodes):
+        """
+        Retrieves the list of news articles and country codes for a given country code.
+
+        Args:
+            country_code (CountryCodes): The country code for which news articles are to be retrieved.
+
+        Returns:
+            tuple: A tuple containing the following elements:
+                - float: The timestamp of the news articles.
+                - list[NewsArticle]: The list of news articles.
+                - CountryCodes: The country code.
+
+        """
         filename = NewsManager.get_filename(country_code)
-        timestamp, news_list = NewsManager.load_from_gcs_bucket(filename)
-        return timestamp, news_list
+        news_data = NewsManager.load_from_gcs_bucket(filename)
+        return news_data
 
 
 if __name__ == "__main__":

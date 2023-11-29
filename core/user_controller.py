@@ -22,7 +22,7 @@ class User:
         timestamp, articles_list = self.news_articles_dict.get(country_code, (None, None))
         logger.debug(f"News timestamp: {timestamp}, News article list: {articles_list}")
         if articles_list is None:
-            timestamp, articles_list = NewsManager.get_timestamp_and_news_articles_list(country_code)
+            timestamp, articles_list = NewsManager.get_news_data(country_code)
             self.news_articles_dict[country_code] = (timestamp, articles_list)
         logger.debug(f"In get news article: News timestamp: {timestamp}, News article list: {articles_list}")
         logger.debug(f"News article list: {articles_list}")
