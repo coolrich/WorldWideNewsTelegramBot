@@ -6,7 +6,7 @@ from requests import ReadTimeout
 from controllers.program_state_controller import program_state_controller as psc
 from core.bot_model import BotModel
 from core.bot_view import BotView
-from core.keyboard_button_names import KeyboardButtonsNames as kbn
+from keyboard_button_names.core.keyboard_button_names import KeyboardButtonsNames as kbn
 from error_handling.error_handler import ErrorHandler
 
 

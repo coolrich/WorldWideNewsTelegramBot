@@ -1,7 +1,7 @@
 from telebot import types
 from telebot.formatting import escape_markdown
 
-from core.keyboard_button_names import KeyboardButtonsNames as kbn
+from keyboard_button_names.core.keyboard_button_names import KeyboardButtonsNames as kbn
 from news_handling.news_article import NewsArticle
 
 

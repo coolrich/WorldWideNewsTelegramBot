@@ -4,7 +4,7 @@ from news_handling.news_article import NewsArticle
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-from core.keyboard_button_names import KeyboardButtonsNames as kbn
+from keyboard_button_names.core.keyboard_button_names import KeyboardButtonsNames as kbn
 
 
 class CountryCodes(Enum):
