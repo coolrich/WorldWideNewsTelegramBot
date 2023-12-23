@@ -1,9 +1,9 @@
 import logging as logger
 from typing import Dict
 
-from country_codes.country_codes import CountryCodes
-from news_handling.news_article import NewsArticle
-from news_handling.news_manager import NewsManager
+from wwntgbotlib.country_codes import CountryCodes
+from wwntgbotlib.news_article import NewsArticle
+from wwntgbotlib.news_manager import NewsManager
 
 
 class User:

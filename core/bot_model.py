@@ -6,7 +6,7 @@ from telebot import types
 from controllers.program_state_controller import program_state_controller as psc
 from core.bot_view import BotView
 from core.user_storage import Users
-from country_codes.country_codes import CountryCodes
+from wwntgbotlib.country_codes import CountryCodes
 from google.cloud import secretmanager
 
 
