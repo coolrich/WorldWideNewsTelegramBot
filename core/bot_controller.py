@@ -35,6 +35,8 @@ class BotController:
             self.create_handlers()
             self.logger.info("Checking for news initialization...")
             # self.is_news_available(lock)
+            # Delete webhook
+            self.bot.delete_webhook()
         self.bot.polling(long_polling_timeout=2)
         with lock:
             self.logger.info("Bot polling has been started...")

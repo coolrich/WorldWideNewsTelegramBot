@@ -7,7 +7,7 @@ import logging
 
 
 class ApplicationController:
-    def __init__(self, is_debug_mode: bool = False, news_update_period: int = 60 * 60):
+    def __init__(self, is_debug_mode: bool = False):
         logging.basicConfig(
             level=logging.DEBUG,
             format='%(asctime)s - %(filename)s - %(levelname)s - %(lineno)d - %(message)s',
