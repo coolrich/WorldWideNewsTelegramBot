@@ -9,7 +9,7 @@ steps:
    id: clone_code
    dir: /workspace
    gitClone:
-   url: https://github.com/your-organization/your-repo.git
+   url: https://github.com/coolrich/WorldWideNewsTelegramBot.git
 
 # Крок 2: Встановлення залежностей Python
 
@@ -32,4 +32,4 @@ steps:
    args:
      - -c
      - |
-      gcloud functions deploy my-function --runtime python310 --trigger-http --source .
+      gcloud functions deploy request_handler --runtime python310 --trigger-http --source ./request_handler/
