@@ -13,3 +13,5 @@ myenv
 /core/__init__.py
 /UA-news.pkl
 /WORLD-news.pkl
+/news_handling/__init__.py
+/tests/set_webhook.py
