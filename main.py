@@ -1,7 +1,5 @@
 import functions_framework
 import google.cloud.secretmanager
-import telebot
-import json
 
 import bot_controller
 
@@ -14,6 +12,7 @@ def run_bot(token: str, request_json):
         bot_controller.BotController(token).handle_message(message)
         return True
     return False
+
 
 #####################################################################################
 
