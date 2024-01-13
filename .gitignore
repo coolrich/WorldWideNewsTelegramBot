@@ -4,3 +4,11 @@
 /.venv/
 /__init__.py
 /створення вебхука для телеграм бота.txt
+/.idea/.gitignore
+/.idea/gcp_tg_all_news_bot.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
+/.idea/WorldWideNewsTelegramBot.iml
