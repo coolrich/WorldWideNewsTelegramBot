@@ -33,4 +33,4 @@ def handle_request(request):
     secret = get_secret(secret_id)
     request_json = request.get_json(silent=True)
     run_bot(secret, request_json)
-    return 'Secret value: {} \nRequest: {}\n'.format(secret, request)
+    return f'Request: {request}\nRequest proccessing is done!'
