@@ -1,35 +1,29 @@
-# Загальні налаштування
-
-timeout: 600s
-
-# Крок 1: Клонування коду з GitHub
-
 steps:
- - name: Clone code
-   id: clone_code
-   dir: /workspace
-   gitClone:
-   url: https://github.com/coolrich/WorldWideNewsTelegramBot.git
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args: ['echo', 'Building...']
+  id: BUILD
+  
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args: ['echo', 'Testing...']
+  id: TEST  
+  
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - $_FUNCTION_NAME
+  - --region=$_FUNCTION_REGION
+  - --source=.
+  - --trigger-http
+  - --runtime=$_FUNCTION_RUNTIME
+  - --project=$_FUNCTION_PROJECT
+  - --entry-point=$_ENTRY_POINT
+  id: DEPLOY
 
-# Крок 2: Встановлення залежностей Python
-
- - name: Install Python dependencies
-   id: install_deps
-   dir: /workspace
-   entrypoint: sh
-   args:
-    - -c
-    - |
-     python3.10 -m pip install -r requirements.txt
-
-# Крок 3: Розгортання функції Google Cloud
-
- - name: Deploy function
-   id: deploy_function
-   waitFor: [install_deps]
-   dir: /workspace
-   entrypoint: sh
-   args:
-     - -c
-     - |
-      gcloud functions deploy request_handler --runtime python310 --trigger-http --source ./request_handler/
+substitutions:
+    _FUNCTION_PROJECT : WorldWideNewsTelegramBotDEV
+    _FUNCTION_NAME    : request_handler
+    _FUNCTION_REGION  : europe-north1
+    _FUNCTION_RUNTIME : python310
+    _ENTRY_POINT      : hello_http
