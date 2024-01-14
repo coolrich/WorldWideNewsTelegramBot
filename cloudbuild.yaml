@@ -24,6 +24,6 @@ steps:
 substitutions:
     _FUNCTION_PROJECT : WorldWideNewsTelegramBotDEV
     _FUNCTION_NAME    : request_handler
-    _FUNCTION_REGION  : europe-north1
+    _FUNCTION_REGION  : us-central1
     _FUNCTION_RUNTIME : python310
     _ENTRY_POINT      : hello_http
