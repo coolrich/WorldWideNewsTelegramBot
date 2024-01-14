@@ -14,8 +14,8 @@ class Users:
     @staticmethod
     def __is_bucket_exists(bucket_name):
         storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-        if bucket.exists():
+        buckets: list = storage_client.list_buckets()
+        if bucket_name in [bucket.name for bucket in buckets]:
             return True
         return False
 
