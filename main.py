@@ -16,7 +16,7 @@ def run_bot(token: str, request_json):
 
 #####################################################################################
 
-def get_secret(secret_id, project_id="worldwidenewstelegrambot", version_id="latest"):
+def get_secret(secret_id, project_id="worldwidenewstelegrambotdev", version_id="latest"):
     # Створіть клієнт менеджера секретів.
     client = google.cloud.secretmanager.SecretManagerServiceClient()
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
