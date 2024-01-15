@@ -34,3 +34,4 @@ def handle_request(request):
     request_json = request.get_json(silent=True)
     run_bot(secret, request_json)
     return f'Request: {request}\nRequest proccessing is finished!'
+###
