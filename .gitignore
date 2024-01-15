@@ -14,3 +14,4 @@
 /.idea/WorldWideNewsTelegramBot.iml
 /test.py
 /cloudbuild_1.yaml
+/json_test_request.json

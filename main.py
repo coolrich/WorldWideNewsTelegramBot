@@ -29,7 +29,7 @@ def get_secret(secret_id, project_id="worldwidenewstelegrambot", version_id="lat
 ####################################################################################
 @functions_framework.http
 def handle_request(request):
-    secret_id = "bot_token"
+    secret_id = "test_bot_token"
     secret = get_secret(secret_id)
     request_json = request.get_json(silent=True)
     run_bot(secret, request_json)
