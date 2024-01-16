@@ -3,7 +3,7 @@ import google.cloud.secretmanager
 
 import bot_controller
 
-
+# Test for gcp trigger
 def run_bot(token: str, request_json):
     data = request_json
     if 'message' in data:
