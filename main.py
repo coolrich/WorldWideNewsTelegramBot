@@ -6,7 +6,7 @@ import logging
 import bot_controller
 
 
-#################################Test 2 for cloudbuiuld trigger
+#################################Test 3 for cloudbuiuld trigger
 def run_bot(token: str, request_json):
     data = request_json
     if 'message' in data:
