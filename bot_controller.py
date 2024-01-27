@@ -4,6 +4,7 @@ from bot_view import BotView
 from telebot.types import ReplyKeyboardMarkup
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
 import logging
+from navigation_menu import Navigator
 
 logger = logging.getLogger(__name__)
 
