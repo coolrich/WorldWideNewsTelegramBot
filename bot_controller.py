@@ -31,8 +31,9 @@ class BotController:
         logger.debug("In handle_message method in BotController class")
         # chat_id = message["chat"]["id"]
         text = message["text"]
+        print("Message:", message)
         navigator = self.bot_model.get_navigator()
-        if text == 'start':
+        if text == '/start':
             navigator = self.bot_model.reset_bot()
             results = navigator.get_results_buffer()
             print("Results:", results)
