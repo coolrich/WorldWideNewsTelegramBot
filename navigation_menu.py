@@ -87,7 +87,7 @@ class Navigator:
                     return (is_changed, results)
                 is_changed = True
                 return (is_changed, results)
-        return (False, result)
+        return (False, results)
     
     def __go_back(self, is_changed: bool):
         if not self.__current_item.get_prev_item():
