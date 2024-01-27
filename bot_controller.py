@@ -56,7 +56,7 @@ class BotController:
         print("Is menu changed:", is_changed, "\nResults:", results)
         if is_changed:
             keyboard = navigator.get_keyboard()
-            self.bot.send_message(message["chat"]["id"], results[1][0], reply_markup=keyboard, parse_mode='MarkdownV2')
+            self.bot.send_message(message["chat"]["id"], results[0], reply_markup=keyboard, parse_mode='MarkdownV2')
 
     # def __get_data(self, chat_id: int, text: str):
         # return self.bot_model.get_data(chat_id, text)
