@@ -72,26 +72,26 @@ class Navigator:
         
     def goto(self, message: Message) -> Tuple[bool, List[Any]]:
         name: str = message['text']
-        results: Tuple[bool, List[Any]] = (False, [])
+        results: List[Any] = []
         next_items = self.__current_item.get_next_items()
+        is_changed = False
         if name == self.__back_button_name:
-            results = self.__go_back(True)
-            return results
+            is_changed = self.__go_back(True)
+            return (is_changed, results)
         for next_item in next_items:
             if next_item.get_name() == name:
                 self.__current_item = next_item
-                if actions:
-                    results = self.__run_actions(message)
-                if next_item.is_empty():
+                results = self.__run_actions(message)
+                if self.__current_item.is_empty():
                     results = self.__go_back(False)
-                    return results
-                results = (True, results)
-                return results
-        return results
+                    return (is_changed, results)
+                is_changed = True
+                return (is_changed, results)
+        return (False, result)
     
     def __go_back(self, is_changed: bool):
         if not self.__current_item.get_prev_item():
             self.__current_item = self.__start_item
         else:
             self.__current_item = self.__current_item.get_prev_item()
-        return (is_changed, [])
+        return is_changed
