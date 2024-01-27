@@ -83,7 +83,7 @@ class Navigator:
                 self.__current_item = next_item
                 results = self.__run_actions(message)
                 if self.__current_item.is_empty():
-                    results = self.__go_back(False)
+                    is_changed = self.__go_back(False)
                     return (is_changed, results)
                 is_changed = True
                 return (is_changed, results)
