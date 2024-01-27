@@ -54,11 +54,14 @@ class BotController:
 
     def __send_message(self, navigator: Navigator, message: Message):
         is_changed, results = navigator.goto(message)
+        answer = ""
+        for result in results:
+            text += str(result) + '\n'
         chat_id = message["chat"]["id"]
-        print("Is menu changed:", is_changed, "\nResults:", results)
+        print("Is menu changed:", is_changed, "\nResults:", answer)
         if is_changed:
             keyboard = navigator.get_keyboard()
-            self.bot.send_message(chat_id, results[0], reply_markup=keyboard, parse_mode='MarkdownV2')
+            self.bot.send_message(chat_id, answer, reply_markup=keyboard, parse_mode='MarkdownV2')
 
     # def __get_data(self, chat_id: int, text: str):
         # return self.bot_model.get_data(chat_id, text)
