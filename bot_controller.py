@@ -35,7 +35,7 @@ class BotController:
         if text == '/start':
             navigator = self.bot_model.reset_bot()
             results = navigator.get_results_buffer()
-            print("Results:". results)
+            print("Results:", results)
             self.__send_welcome(chat_id, navigator)
         else:
             self.__send_message(navigator, message)
