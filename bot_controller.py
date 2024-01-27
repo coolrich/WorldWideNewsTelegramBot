@@ -36,13 +36,14 @@ class BotController:
             navigator = self.bot_model.reset_bot()
             results = navigator.get_results_buffer()
             print("Results:", results)
-            self.__send_welcome(chat_id, navigator)
+            self.__send_welcome(navigator, message)
         else:
             self.__send_message(navigator, message)
         
         logger.debug("End of the start() method in BotController class")
 
-    def __send_welcome(self, chat_id: int, navigator: Navigator):
+    def __send_welcome(self, navigator: Navigator, message):
+        chat_id = message.chat.id
         keyboard = navigator.get_keyboard()
         item_name = navigator.get_item_name()
         self.bot.send_message(
