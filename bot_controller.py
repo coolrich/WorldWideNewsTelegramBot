@@ -56,7 +56,7 @@ class BotController:
         is_changed, results = navigator.goto(message)
         answer = message["text"]
         for result in results:
-            text += str(result) + '\n'
+            answer += str(result) + '\n'
         chat_id = message["chat"]["id"]
         print("Is menu changed:", is_changed, "\nResults:", answer)
         if is_changed:
