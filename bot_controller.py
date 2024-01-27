@@ -32,7 +32,7 @@ class BotController:
         # chat_id = message["chat"]["id"]
         text = message["text"]
         navigator = self.bot_model.get_navigator()
-        if text == '/start':
+        if text == 'start':
             navigator = self.bot_model.reset_bot()
             results = navigator.get_results_buffer()
             print("Results:", results)
@@ -53,10 +53,11 @@ class BotController:
 
     def __send_message(self, navigator: Navigator, message: Message):
         is_changed, results = navigator.goto(message)
+        chat_id = message["chat"]["id"]
         print("Is menu changed:", is_changed, "\nResults:", results)
         if is_changed:
             keyboard = navigator.get_keyboard()
-            self.bot.send_message(message["chat"]["id"], results[0], reply_markup=keyboard, parse_mode='MarkdownV2')
+            self.bot.send_message(chat_id, results[0], reply_markup=keyboard, parse_mode='MarkdownV2')
 
     # def __get_data(self, chat_id: int, text: str):
         # return self.bot_model.get_data(chat_id, text)
