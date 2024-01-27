@@ -1,7 +1,7 @@
 import telebot
 from bot_model import BotModel
 from bot_view import BotView
-from telebot.types import ReplyKeyboardMarkup
+from telebot.types import ReplyKeyboardMarkup, Message
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
 import logging
 from navigation_menu import Navigator
