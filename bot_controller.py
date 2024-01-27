@@ -30,7 +30,7 @@ class BotController:
     def handle_message(self, message: telebot.types.Message):
         logger.debug("In handle_message method in BotController class")
         # chat_id = message["chat"]["id"]
-        # text = message["text"]
+        text = message["text"]
         navigator = self.bot_model.get_navigator()
         if text == '/start':
             navigator = self.bot_model.reset_bot()
@@ -38,7 +38,7 @@ class BotController:
             print("Results:". results)
             self.__send_welcome(chat_id, navigator)
         else:
-            self.__send_message()
+            self.__send_message(navigator, message)
         
         logger.debug("End of the start() method in BotController class")
 
