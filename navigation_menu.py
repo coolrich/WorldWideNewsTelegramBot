@@ -1,5 +1,5 @@
 from typing import List, Callable, Tuple, Any, Type, Union
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, Message
 
 class Item:
     def __init__(self, name: str, prev_item: Type['Item']=None):
@@ -58,20 +58,21 @@ class Navigator:
     def get_results_buffer(self):
         return self.__results_buffer
     
-    def __run_actions(self) -> List[Any]:
+    def __run_actions(self, message: Message) -> List[Any]:
         actions = self.__current_item.get_actions()
-        # print("In run_actions function: Current_item_name:", self.__current_item.get_name())
-        # print("In run_actions function: list of actions:", actions)
         self.__results_buffer = []
         for action in actions:
-            function, args = action
-            result = function(*args)
-            # print("Result:",result)
+            function, static_args = action
+            if not static_args:
+                result = function(message)
+            else:
+                result = function(*static_args)
             self.__results_buffer.append(result)
         return self.__results_buffer
         
-    def goto(self, name: str) -> Tuple[bool, List[Any]]:
-        results: Tuple[bool, List[Any]] = (None, None)
+    def goto(self, message: Message) -> Tuple[bool, List[Any]]:
+        name: str = message['name']
+        results: Tuple[bool, List[Any]] = (False, [])
         next_items = self.__current_item.get_next_items()
         if name == self.__back_button_name:
             results = self.__go_back(True)
@@ -79,13 +80,13 @@ class Navigator:
         for next_item in next_items:
             if next_item.get_name() == name:
                 self.__current_item = next_item
-                results = self.__run_actions()
+                if actions:
+                    results = self.__run_actions(message)
                 if next_item.is_empty():
                     results = self.__go_back(False)
                     return results
                 results = (True, results)
                 return results
-        results = (False, [])
         return results
     
     def __go_back(self, is_changed: bool):

@@ -1,6 +1,7 @@
 import telebot
 from bot_model import BotModel
 from bot_view import BotView
+from telebot.types import ReplyKeyboardMarkup
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
 import logging
 
@@ -26,32 +27,37 @@ class BotController:
             return True
 
     def handle_message(self, message: telebot.types.Message):
-        logger.debug("In start method in BotController class")
-        chat_id = message["chat"]["id"]
-        text = message["text"]
-        if text in ['/start', '/help']:
-            self.__send_welcome(chat_id)
-        elif text in [kbn.UA.value, kbn.WORLD.value]:
-            self.__send_news(chat_id, text)
+        logger.debug("In handle_message method in BotController class")
+        # chat_id = message["chat"]["id"]
+        # text = message["text"]
+        navigator = self.bot_model.get_navigator()
+        if text == '/start':
+            navigator = self.bot_model.reset_bot()
+            results = navigator.get_results_buffer()
+            print("Results:". results)
+            self.__send_welcome(chat_id, navigator)
         else:
-            self.__default_handler(chat_id)
+            self.__send_message()
+        
         logger.debug("End of the start() method in BotController class")
 
-    def __send_welcome(self, chat_id: int):
+    def __send_welcome(self, chat_id: int, navigator: Navigator):
+        keyboard = navigator.get_keyboard()
+        item_name = navigator.get_item_name()
         self.bot.send_message(
             chat_id=chat_id,
-            text="Привіт, я бот для Telegram, який показує новини",
-            reply_markup=self.bot_view.create_markup())
+            text=f"Привіт, я бот для Telegram, який показує новини\n{item_name}",
+            reply_markup=keyboard)
 
-    def __send_news(self, chat_id: int, text: str):
-        data = self.__get_data(chat_id, text)
-        self.bot.send_message(chat_id=data['chat_id'],
-                              text=data['post'],
-                              parse_mode=data['parse_mode']
-                              )
+    def __send_message(self, navigator: Navigator, message: Message):
+        is_changed, results = navigator.goto(message)
+        print("Is menu changed:", is_changed, "\nResults:", results)
+        if is_changed:
+            keyboard = navigator.get_keyboard()
+            bot.send_message(message.chat.id, results[1][0], reply_markup=keyboard, parse_mode='MarkdownV2')
 
-    def __get_data(self, chat_id: int, text: str):
-        return self.bot_model.get_data(chat_id, text)
+    # def __get_data(self, chat_id: int, text: str):
+        # return self.bot_model.get_data(chat_id, text)
 
     def __default_handler(self, chat_id: int):
         self.bot.send_message(
