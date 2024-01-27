@@ -58,7 +58,7 @@ class Navigator:
     def get_results_buffer(self):
         return self.__results_buffer
     
-    def __run_actions(self, message: Message) -> List[Any]:
+    def __run_actions(self, message: Message=None) -> List[Any]:
         actions = self.__current_item.get_actions()
         self.__results_buffer = []
         for action in actions:
