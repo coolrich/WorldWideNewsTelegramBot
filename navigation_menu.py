@@ -71,7 +71,7 @@ class Navigator:
         return self.__results_buffer
         
     def goto(self, message: Message) -> Tuple[bool, List[Any]]:
-        name: str = message['name']
+        name: str = message['text']
         results: Tuple[bool, List[Any]] = (False, [])
         next_items = self.__current_item.get_next_items()
         if name == self.__back_button_name:
