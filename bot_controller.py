@@ -32,7 +32,7 @@ class BotController:
         # chat_id = message["chat"]["id"]
         text = message["text"]
         print("Message:", message)
-        navigator = self.bot_model.get_navigator()
+        navigator = self.bot_model.get_navigator(message)
         if text == '/start':
             navigator = self.bot_model.reset_navigator()
             results = navigator.get_results_buffer()
