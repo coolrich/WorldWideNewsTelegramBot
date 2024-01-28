@@ -10,28 +10,18 @@ class BotModel:
         self.token = token
         self.logger = a_logger
         self.users_storage = Users()      
-        self.__navigator = self.__create_navigation()
-        
-    def __create_navigation(self):
-        main = Item("Головна")
-        news = main.add_next_item("Новини")
-        ukraine_news = news.add_next_item("України")
-        last_ukraine_news = ukraine_news.add_next_item("Останні")
-        past_ukraine_news = ukraine_news.add_next_item("Минулі")
-        world_news = news.add_next_item("Світу")
-        last_world_news = world_news.add_next_item("Last")
-        past_world_news = world_news.add_next_item("Past")
-        settings = main.add_next_item("Налаштування")
-        last_ukraine_news.add_action(self.get_data)
-        last_world_news.add_action(self.get_data)
-        return Navigator(main, "Назад")  
-
-    def get_navigator(self):
-        return self.__navigator
     
-    def reset_bot(self):
-        self.__navigator = self.__create_navigation()
-        return self.__navigator
+    def get_navigator(self, message):
+        chat_id = message['chat']['id']
+        return self.get_user(chat_id).get_navigator()
+    
+    def reset_navigator(self, message):
+        chat_id = message['chat']['id']
+        return self.get_user(chat_id).reset_navigator()
+    
+    def save_navigator_state(self, message):
+        chat_id = message['chat']['id']
+        return self.get_user(chat_id).create_navigator()
     
     def get_data(self, message):
         char_id = message["chat"]["id"]
