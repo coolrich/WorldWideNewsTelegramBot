@@ -69,8 +69,6 @@ class NavigatorController:
         ukraine_news = news.add_next_item("України")
         ukraine_news.add_action(self.__data_controller)
         world_news = news.add_next_item("Світу")
-        last_world_news = world_news.add_next_item("Last")
-        past_world_news = world_news.add_next_item("Past")
         settings = main.add_next_item("Налаштування")
         return Navigator(main, "Назад")
     
