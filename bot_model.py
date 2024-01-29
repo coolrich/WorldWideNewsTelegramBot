@@ -22,6 +22,7 @@ class DataController(Action):
         user = self.__get_user(chat_id)
         if user is None:
             user = self.__add_user(chat_id)
+        print("Message text:", message_text)
         news_article = DataController.__get_news_article(message_text, user)
         post = BotView.get_post(news_article)
         self.__save_user(user)

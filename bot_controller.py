@@ -69,7 +69,7 @@ class BotController:
 
     def __send_message(self, navigator: Navigator, message: Message):
         is_changed, results = navigator.goto(message)
-        answer = message["text"]
+        answer = ""
         for result in results:
             answer += str(result) + '\n'
         chat_id = message["chat"]["id"]
