@@ -3,10 +3,7 @@ from telebot.formatting import escape_markdown
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
 from wwntgbotlib.news_article import NewsArticle
 
-class BotView:
-    def __init__(self):
-        self.__markup = None
-        
+class BotView:       
     @staticmethod
     def get_post(news_article: NewsArticle) -> str:
         text = news_article.get_text

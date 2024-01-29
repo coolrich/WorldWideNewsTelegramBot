@@ -1,5 +1,5 @@
 import telebot
-from bot_model import BotModel
+from bot_model import DataController, NavigatorController
 from bot_view import BotView
 from telebot.types import ReplyKeyboardMarkup, Message
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
@@ -28,9 +28,10 @@ logger.addHandler(console_handler)
 class BotController:
 
     def __init__(self, token: str):
-        self.bot_model = BotModel(logger, token)
+        self.data_controller = DataController(logger, token)
         self.bot_view = BotView()
-        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException(logger))
+        self.bot = telebot.TeleBot(self.data_controller.token, exception_handler=BotController.MyBotPollingException(logger))
+        self.navigator_controller = NavigatorController(self.data_controller)
 
     class MyBotPollingException(telebot.ExceptionHandler):
         def __init__(self, a_logger):
@@ -46,15 +47,15 @@ class BotController:
         # chat_id = message["chat"]["id"]
         text = message["text"]
         print("Message:", message)
-        navigator = self.bot_model.get_navigator(message)
         if text == '/start':
-            navigator = self.bot_model.reset_navigator(message)
+            navigator = self.navigator_controller.reset(message)
             results = navigator.get_results_buffer()
             print("Results:", results)
             self.__send_welcome(navigator, message)
         else:
+            navigator = self.navigator_controller.get_navigator(message)
             self.__send_message(navigator, message)
-        self.bot_model.save_navigator_state(navigator, message)
+        self.navigator_controller.save_state(navigator, message)
         logger.debug("End of the start() method in BotController class")
 
     def __send_welcome(self, navigator: Navigator, message):
@@ -76,9 +77,6 @@ class BotController:
         if is_changed:
             keyboard = navigator.get_keyboard()
             self.bot.send_message(chat_id, answer, reply_markup=keyboard, parse_mode='MarkdownV2')
-
-    def __default_handler(self, chat_id: int):
-        self.bot.send_message(
-            chat_id=chat_id,
-            text="Я не розумію, що ви хочете сказати. Використовуйте меню нижче:",
-            reply_markup=self.bot_view.create_markup())
+            return
+        self.bot.send_message(chat_id, answer, parse_mode='MarkdownV2')
+        

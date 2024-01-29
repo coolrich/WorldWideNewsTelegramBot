@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class Action(ABC):
     @abstractmethod
-    def run(self, *args, **kwargs) -> Any:
+    def run(self, message) -> Any:
         pass
         
 class Item:
@@ -23,6 +23,7 @@ class Item:
     
     def add_action(self, action: Action):
         self.__actions.append(action)
+        print("Action:", action, "is added")
     
     def get_name(self):
         return self.__name
@@ -44,7 +45,7 @@ class Item:
         "name" : self.__name,
         "prev" : self.__prev,
         "next" : self.__next,
-        "actions" : [],#self.__actions,
+        "actions" : self.__actions,
         "is_empty" : self.__is_empty,
         }
 
@@ -52,7 +53,7 @@ class Item:
         self.__name = state["name"]
         self.__prev = state["prev"]
         self.__next = state["next"]
-        self.__actions = []#state["actions"]
+        self.__actions = state["actions"]
         self.__is_empty = state["is_empty"]
         
 class Navigator:
@@ -79,12 +80,17 @@ class Navigator:
         return self.__results_buffer
     
     def __run_actions(self, message: Message=None) -> List[Any]:
+        print("Start run actions")
         actions = self.__current_item.get_actions()
         self.__results_buffer = []
-        for action in actions:
-            if message:
+        if message:
+            print("Current item:", self.__current_item.get_name())
+            print("Actions:", actions)
+            for action in actions:
+                print("Run action:", action.run)
                 result = action.run(message=message)
-            self.__results_buffer.append(result)
+                self.__results_buffer.append(result)
+        print("Finish run actions")
         return self.__results_buffer
         
     def goto(self, message: Message) -> Tuple[bool, List[Any]]:
