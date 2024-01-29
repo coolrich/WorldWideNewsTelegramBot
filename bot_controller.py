@@ -3,20 +3,34 @@ from bot_model import BotModel
 from bot_view import BotView
 from telebot.types import ReplyKeyboardMarkup, Message
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
-import logging
 from navigation_menu import Navigator
+import logging 
 
+# Створення логера
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
+# Створення обробника консолі
+console_handler = logging.StreamHandler()
+
+# Встановлення рівня логування для обробника консолі
+console_handler.setLevel(logging.DEBUG)
+
+# Створення об'єкта форматування
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Встановлення форматування для обробника консолі
+console_handler.setFormatter(formatter)
+
+# Додавання обробника консолі до логера
+logger.addHandler(console_handler)
 
 class BotController:
 
     def __init__(self, token: str):
         self.bot_model = BotModel(logger, token)
         self.bot_view = BotView()
-        self.bot = telebot.TeleBot(
-            self.bot_model.token, exception_handler=BotController.MyBotPollingException(logger)
-        )
+        self.bot = telebot.TeleBot(self.bot_model.token, exception_handler=BotController.MyBotPollingException(logger))
 
     class MyBotPollingException(telebot.ExceptionHandler):
         def __init__(self, a_logger):
@@ -34,13 +48,13 @@ class BotController:
         print("Message:", message)
         navigator = self.bot_model.get_navigator(message)
         if text == '/start':
-            navigator = self.bot_model.reset_navigator()
+            navigator = self.bot_model.reset_navigator(message)
             results = navigator.get_results_buffer()
             print("Results:", results)
             self.__send_welcome(navigator, message)
         else:
             self.__send_message(navigator, message)
-        
+        self.bot_model.save_navigator_state(navigator, message)
         logger.debug("End of the start() method in BotController class")
 
     def __send_welcome(self, navigator: Navigator, message):
@@ -62,9 +76,6 @@ class BotController:
         if is_changed:
             keyboard = navigator.get_keyboard()
             self.bot.send_message(chat_id, answer, reply_markup=keyboard, parse_mode='MarkdownV2')
-
-    # def __get_data(self, chat_id: int, text: str):
-        # return self.bot_model.get_data(chat_id, text)
 
     def __default_handler(self, chat_id: int):
         self.bot.send_message(

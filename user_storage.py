@@ -1,4 +1,4 @@
-from user_controller import User
+from user_model import User
 import pickle
 from google.cloud import storage
 
@@ -24,6 +24,7 @@ class Users:
         user_pickle = pickle.dumps(user)  # Серіалізуємо об'єкт User у Pickle
         blob = self.news_data_bucket.blob(f"user_{user.chat_id}.pickle")  # Створюємо blob
         blob.upload_from_string(user_pickle)  # Завантажуємо blob у сховище
+        return user
 
     def get_user(self, chat_id: int) -> User:
         """Завантажує об'єкт User з Cloud Storage."""
