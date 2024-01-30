@@ -1,6 +1,7 @@
 from bot_view import BotView
 from user_storage import Users
 from wwntgbotlib.country_codes import CountryCodes
+from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as KBN
 from user_model import User
 from navigation_menu import Navigator, Item, Action
 import pickle
@@ -24,6 +25,8 @@ class DataController(Action):
             user = self.__add_user(chat_id)
         print("Message text:", message_text)
         news_article = DataController.__get_news_article(message_text, user)
+        if not news_article:
+            return message_text
         post = BotView.get_post(news_article)
         self.__save_user(user)
         print("Finish get data")
@@ -31,7 +34,11 @@ class DataController(Action):
     
     @staticmethod
     def __get_news_article(message_text, user: User):
-        return user.get_news_article(CountryCodes.get_member_by_value(message_text))
+        try:
+            country_code = CountryCodes.get_member_by_value(message_text)
+        except:
+            return None
+        return user.get_news_article(country_code)
 
     def __get_user(self, chat_id):
         return self.users_storage.get_user(chat_id)
@@ -66,7 +73,7 @@ class NavigatorController:
     def create_navigator(self):    
         main = Item("Головна")
         news = main.add_next_item("Новини")
-        ukraine_news = news.add_next_item("України")
+        ukraine_news = news.add_next_item(KBN.UA.value)
         ukraine_news.add_action(self.__data_controller)
         world_news = news.add_next_item("Світу")
         settings = main.add_next_item("Налаштування")

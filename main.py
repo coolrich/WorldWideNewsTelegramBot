@@ -1,6 +1,6 @@
 import functions_framework
 import google.cloud.secretmanager
-
+from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
 import bot_controller
 
 # Test for gcp trigger
@@ -23,8 +23,14 @@ def get_secret(secret_id, project_id="worldwidenewstelegrambotdev", version_id="
 
 @functions_framework.http
 def handle_request(request):
+    print("Start bot------------------------------")
+    print("Traversing button names:")
+    for bn in kbn:
+        print("Button name:", bn.value)
+    print("Stop bot------------------------------")
     secret_id = "test_bot_token"
     secret = get_secret(secret_id)
     request_json = request.get_json(silent=True)
     run_bot(secret, request_json)
+    
     return f'Request: {request}\nRequest proccessing is finished!'
