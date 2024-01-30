@@ -64,7 +64,7 @@ class DataController(Action):
     
 # class MyTestClass(Action):
     # def run(self, message):
-        # print("Hello from MyTestClass!!!!!!!!!!!!!!!!!!")
+        
 
 class NavigatorController:
     def __init__(self, data_controller):
