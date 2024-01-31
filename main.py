@@ -21,6 +21,7 @@ def get_secret(secret_id, project_id="worldwidenewstelegrambotdev", version_id="
     payload = response.payload.data.decode("UTF-8")
     return payload
 
+# Entry point
 @functions_framework.http
 def handle_request(request):
     print("Start bot------------------------------")
