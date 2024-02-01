@@ -1,21 +1,23 @@
 import logging as logger
 from typing import Dict
+from navigation_menu import Item, Navigator
 
 from wwntgbotlib.country_codes import CountryCodes
 from wwntgbotlib.news_article import NewsArticle
 from wwntgbotlib.news_manager import NewsManager
+from google.cloud import storage
 
 
 class User:
     def __init__(self, chat_id):
         self.chat_id = chat_id
-        self.news_articles_dict: Dict[CountryCodes, (float, list[NewsArticle])] = {}
-
+        self.news_articles_dict: Dict[CountryCodes, (float, list[NewsArticle])] = {}       
+        
     def __eq__(self, chat_id):
         if isinstance(chat_id, int):
             return chat_id == self.chat_id
         return False
-
+    
     # TODO: try to make refactoring
     def get_news_article(self, country_code: CountryCodes) -> NewsArticle:
         logger.debug(f"In method get_news_article: {country_code}")
