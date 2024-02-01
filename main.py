@@ -1,12 +1,9 @@
 import functions_framework
 import google.cloud.secretmanager
-import telebot
-import json
-import logging
+from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
 import bot_controller
 
-
-#################################Test 3 for cloudbuiuld trigger
+# Test for gcp trigger
 def run_bot(token: str, request_json):
     data = request_json
     if 'message' in data:
@@ -26,13 +23,18 @@ def get_secret(secret_id, project_id="worldwidenewstelegrambot", version_id="lat
     payload = response.payload.data.decode("UTF-8")
     return payload
 
-####################################################################################
+
+# Entry point
 @functions_framework.http
 def handle_request(request):
-    print("Start of handle a request")
+    print("Start bot------------------------------")
+    print("Traversing button names:")
+    for bn in kbn:
+        print("Button name:", bn.value)
+    print("Stop bot------------------------------")
     secret_id = "bot_token"
     secret = get_secret(secret_id)
     request_json = request.get_json(silent=True)
     print(f"Request:{request_json}")
-    run_bot(secret, request_json)
-    return 'Request handling has been finished!'
+    run_bot(secret, request_json)  
+    return f'Request: {request}\nRequest proccessing is finished!'

@@ -1,54 +1,107 @@
-# from telebot import types
 from bot_view import BotView
 from user_storage import Users
 from wwntgbotlib.country_codes import CountryCodes
-# from google.cloud import secretmanager
-from user_controller import User
+from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as KBN
+from user_model import User
+from navigation_menu import Navigator, Item, Action
+import pickle
+from google.cloud import storage
 
-
-class BotModel:
+class NewsReceiver(Action):
     def __init__(self, a_logger, token):
-        # self.token = BotModel.get_secret("worldwidenewstelegrambot", "bot_token")
         self.token = token
+        self.users_storage = Users()      
         self.logger = a_logger
-        self.users_storage = Users()
-
-    # @staticmethod
-    # def get_secret(project_id, secret_id, version_id="latest"):
-    #     client = secretmanager.SecretManagerServiceClient()
-    #     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
-    #     response = client.access_secret_version(request={"name": name})
-    #     payload = response.payload.data.decode("UTF-8")
-    #     return payload
-
-    def get_data(self, chat_id: int, text: str):
+    
+    def run(self, message):
+        print("Start get data")
+        chat_id = message["chat"]["id"]
         parse_mode = 'MarkdownV2'
-        chat_id = chat_id
-        message_text = text
+        message_text = message["text"]
 
         self.logger.debug(f"Message: {message_text}")
-        user = self.get_user(chat_id)
+        user = self.__get_user(chat_id)
         if user is None:
-            self.add_user(chat_id)
-            user = self.get_user(chat_id)
-        news_article = self.get_news_article(message_text, user)
-        post = BotView.get_post_dict(news_article)
-        self.save_user(user)
-        return {'chat_id': chat_id, 'post': post, 'parse_mode': parse_mode}
-
+            user = self.__add_user(chat_id)
+        print("Message text:", message_text)
+        news_article = NewsReceiver.__get_news_article(message_text, user)
+        if not news_article:
+            return message_text
+        post = BotView.get_post(news_article)
+        self.__save_user(user)
+        print("Finish get data")
+        return post   
+    
     @staticmethod
-    def get_news_article(message_text, user: User):
-        return user.get_news_article(CountryCodes.get_member_by_value(message_text))
+    def __get_news_article(message_text, user: User):
+        try:
+            country_code = CountryCodes.get_member_by_value(message_text)
+        except:
+            return None
+        return user.get_news_article(country_code)
 
-    def get_user(self, chat_id):
+    def __get_user(self, chat_id):
         return self.users_storage.get_user(chat_id)
 
-    def is_new_user(self, chat_id):
-        # return chat_id not in self.users_storage.users
-        return self.users_storage.get_user(chat_id) is None
-
-    def save_user(self, user: User):
+    def __save_user(self, user: User):
         self.users_storage.add_user(user)
 
-    def add_user(self, chat_id):
-        self.users_storage.add_user(User(chat_id))
+    def __add_user(self, chat_id):
+        user = self.users_storage.add_user(User(chat_id))
+        return user
+    
+    def __getstate__(self):
+        return {
+        "token" : self.token,
+        "users_storage" : self.users_storage,
+        "logger" : self.logger
+        }
+
+    def __setstate__(self, state):
+        self.token = state["token"]
+        self.users_storage = state["users_storage"]
+        self.logger = state["logger"]
+    
+# class MyTestClass(Action):
+    # def run(self, message):
+        # print("Hello from MyTestClass!!!!!!!!!!!!!!!!!!")
+
+class NavigatorController:
+    def __init__(self, news_receiver):
+        self.__news_receiver = news_receiver
+    
+    def create_navigator(self):    
+        main = Item("Головна")
+        news = main.add_next_item("Новини")
+        ukraine_news = news.add_next_item(KBN.UA.value)
+        ukraine_news.add_action(self.__news_receiver)
+        world_news = news.add_next_item(KBN.WORLD.value)
+        world_news.add_action(self.__news_receiver)
+        settings = main.add_next_item("Налаштування")
+        settings.add_next_item("Донат")
+        return Navigator(main, "Назад")
+    
+    def reset(self, message):
+        navigator = self.create_navigator()
+        self.save_state(navigator, message)
+        return navigator
+        
+    def save_state(self, navigator: Navigator, message):
+        chat_id = message['chat']['id']
+        nav_pkl = pickle.dumps(navigator)
+        navigation_users_data_bucket = storage.Client().bucket("navigation_users_data")
+        blob = navigation_users_data_bucket.blob(f"user_{chat_id}_nav_data.pickle")
+        blob.upload_from_string(nav_pkl)
+        
+    def get_navigator(self, message):
+        chat_id = message['chat']['id']
+        navigation_users_data_bucket = storage.Client().bucket("navigation_users_data")
+        blob = navigation_users_data_bucket.blob(f"user_{chat_id}_nav_data.pickle")
+        if blob.exists():
+            navigator_pkl = blob.download_as_string()
+            navigator = pickle.loads(navigator_pkl)
+            return navigator
+        navigator = self.create_navigator()
+        return navigator
+    
+    
