@@ -1,5 +1,5 @@
 import telebot
-from bot_model import DataController, NavigatorController
+from bot_model import NewsReceiver, NavigatorController
 from bot_view import BotView
 from telebot.types import ReplyKeyboardMarkup, Message
 from wwntgbotlib.keyboard_button_names import KeyboardButtonsNames as kbn
@@ -28,10 +28,10 @@ logger.addHandler(console_handler)
 class BotController:
 
     def __init__(self, token: str):
-        self.data_controller = DataController(logger, token)
+        self.__news_receiver = NewsReceiver(logger, token)
         self.bot_view = BotView()
-        self.bot = telebot.TeleBot(self.data_controller.token, exception_handler=BotController.MyBotPollingException(logger))
-        self.navigator_controller = NavigatorController(self.data_controller)
+        self.bot = telebot.TeleBot(self.__news_receiver.token, exception_handler=BotController.MyBotPollingException(logger))
+        self.navigator_controller = NavigatorController(self.__news_receiver)
 
     class MyBotPollingException(telebot.ExceptionHandler):
         def __init__(self, a_logger):

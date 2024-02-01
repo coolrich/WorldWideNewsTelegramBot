@@ -7,7 +7,7 @@ from navigation_menu import Navigator, Item, Action
 import pickle
 from google.cloud import storage
 
-class DataController(Action):
+class NewsReceiver(Action):
     def __init__(self, a_logger, token):
         self.token = token
         self.users_storage = Users()      
@@ -24,7 +24,7 @@ class DataController(Action):
         if user is None:
             user = self.__add_user(chat_id)
         print("Message text:", message_text)
-        news_article = DataController.__get_news_article(message_text, user)
+        news_article = NewsReceiver.__get_news_article(message_text, user)
         if not news_article:
             return message_text
         post = BotView.get_post(news_article)
@@ -67,16 +67,18 @@ class DataController(Action):
         # print("Hello from MyTestClass!!!!!!!!!!!!!!!!!!")
 
 class NavigatorController:
-    def __init__(self, data_controller):
-        self.__data_controller = data_controller
+    def __init__(self, news_receiver):
+        self.__news_receiver = news_receiver
     
     def create_navigator(self):    
         main = Item("Головна")
         news = main.add_next_item("Новини")
         ukraine_news = news.add_next_item(KBN.UA.value)
-        ukraine_news.add_action(self.__data_controller)
-        world_news = news.add_next_item("Світу")
+        ukraine_news.add_action(self.__news_receiver)
+        world_news = news.add_next_item(KBN.WORLD.value)
+        world_news.add_action(self.__news_receiver)
         settings = main.add_next_item("Налаштування")
+        settings.add_next_item("Донат")
         return Navigator(main, "Назад")
     
     def reset(self, message):
