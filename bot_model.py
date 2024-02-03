@@ -73,9 +73,10 @@ class NavigatorController:
     def create_navigator(self):    
         main = Item("Головна")
         news = main.add_next_item("Новини")
-        ukraine_news = news.add_next_item(KBN.UA.value)
+        bbc_news = news.add_next_item("BBC")
+        ukraine_news = bbc_news.add_next_item(KBN.UA.value)
         ukraine_news.add_action(self.__news_receiver)
-        world_news = news.add_next_item(KBN.WORLD.value)
+        world_news = bbc_news.add_next_item(KBN.WORLD.value)
         world_news.add_action(self.__news_receiver)
         settings = main.add_next_item("Налаштування")
         settings.add_next_item("Донат")
