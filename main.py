@@ -12,7 +12,7 @@ def run_bot(token: str, request_json):
         return True
     return False
 
-####################################################################################
+###################################################################################
 
 def get_secret(secret_id, project_id="worldwidenewstelegrambot", version_id="latest"):
     # Створіть клієнт менеджера секретів.
