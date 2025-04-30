@@ -14,10 +14,14 @@
 - Серіалізація стану через `pickle`
 - Архітектура на основі патерну "дія як клас"
 
-Використані технології
+## Використані технології
 - Python 3.10+
 - pyTelegramBotAPI
 - Google Cloud Storage
 - Google Secret Manager
 
-Посилання на бот: https://t.me/EarthNewsEpicBot
+## Знімок екрану бота:
+![image](https://github.com/user-attachments/assets/b6f3c213-7729-442f-9845-b38334920528)
+
+
+## Посилання на бота: https://t.me/EarthNewsEpicBot
