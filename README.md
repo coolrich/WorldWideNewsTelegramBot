@@ -2,15 +2,12 @@
 
 **WorldWideNewsTelegramBot** — це Telegram-бот, який надає користувачам новини з різних країн світу через зручну систему багаторівневого меню. Реалізований із дотриманням принципів модульності, безпечного зберігання даних та масштабованості.
 
-## 🖼️ Скріншоти та відео
+## 🖼️ Скріншоти та gif
 
 ![image](https://github.com/user-attachments/assets/435a8bd4-826f-4dc8-95ec-b790591dfc17)
 ![image](https://github.com/user-attachments/assets/e27ee4e1-1314-4cb4-8332-faaa0f2f894b)
 ![image](https://github.com/user-attachments/assets/5f7369a4-2160-4097-8dfc-1e04953029bb)
-<video controls width="100%">
-  <source src="https://github.com/user-attachments/assets/b4d9682d-dcb4-4b75-a76b-9923d858edd8" type="video/mp4">
-  Ваш браузер не підтримує елемент відео.
-</video>
+![output](https://github.com/user-attachments/assets/79ebc5b9-6bd6-4d0d-a964-d3e8aac4d056)
 
 
 
