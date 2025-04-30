@@ -7,7 +7,7 @@
 ![image](https://github.com/user-attachments/assets/435a8bd4-826f-4dc8-95ec-b790591dfc17)
 ![image](https://github.com/user-attachments/assets/e27ee4e1-1314-4cb4-8332-faaa0f2f894b)
 ![image](https://github.com/user-attachments/assets/5f7369a4-2160-4097-8dfc-1e04953029bb)
-https://github.com/user-attachments/assets/b4d9682d-dcb4-4b75-a76b-9923d858edd8
+<video src="[URL_ДО_ВІДЕО.mp4](https://github.com/user-attachments/assets/b4d9682d-dcb4-4b75-a76b-9923d858edd8)" controls width="100%"></video>
 
 
 
