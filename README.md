@@ -5,9 +5,8 @@
 ## 🖼️ Скріншоти та gif
 <p align='center'>
 <img src="https://github.com/user-attachments/assets/435a8bd4-826f-4dc8-95ec-b790591dfc17" alt="Скріншот бота" width="600"/>
-![image](https://github.com/user-attachments/assets/435a8bd4-826f-4dc8-95ec-b790591dfc17)
-![image](https://github.com/user-attachments/assets/e27ee4e1-1314-4cb4-8332-faaa0f2f894b)
-![image](https://github.com/user-attachments/assets/5f7369a4-2160-4097-8dfc-1e04953029bb)   
+<img src="https://github.com/user-attachments/assets/e27ee4e1-1314-4cb4-8332-faaa0f2f894b" alt="Скріншот бота" width="600"/>
+<img src="https://github.com/user-attachments/assets/5f7369a4-2160-4097-8dfc-1e04953029bb" alt="Скріншот бота" width="600"/>  
 </p>
 ![output](https://github.com/user-attachments/assets/79ebc5b9-6bd6-4d0d-a964-d3e8aac4d056)
 
