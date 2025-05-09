@@ -89,7 +89,7 @@
 > ❗ Цей бот не використовує long polling — запуск відбувається за подіями через Webhook.
 
 ### 🔗 Запустити бота  
-[![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)]([https://t.me/WorldWideNewsChannelBot](https://t.me/EarthNewsEpicBot))
+[![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/EarthNewsEpicBot)
 
 
 ## 📎 Ліцензія
